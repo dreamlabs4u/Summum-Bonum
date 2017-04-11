@@ -8,7 +8,7 @@
 # Site settings
 title: HyG
 brief-intro: Front-end Dev Engineer
-baseurl: "/Summum-Bonum/" # the subpath of your site, e.g. /blog
+baseurl: "" # the subpath of your site, e.g. /blog
 url: "https://gaohaoyang.github.io" # the base hostname & protocol for your site
 
 permalink: /:year/:month/:day/:title/
