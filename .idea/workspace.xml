@@ -1,0 +1,434 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ChangeListManager">
+    <list default="true" id="be31e74a-34ff-479e-974a-0c561873b4d8" name="Default" comment="">
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/_site/feed.xml" afterPath="$PROJECT_DIR$/_site/feed.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/_site/index.html" afterPath="$PROJECT_DIR$/_site/index.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/_site/page2/index.html" afterPath="$PROJECT_DIR$/_site/page2/index.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/_site/page3/index.html" afterPath="$PROJECT_DIR$/_site/page3/index.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/_site/page4/index.html" afterPath="$PROJECT_DIR$/_site/page4/index.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/_site/page5/index.html" afterPath="$PROJECT_DIR$/_site/page5/index.html" />
+    </list>
+    <ignored path="dreamlabs4u.github.io.iws" />
+    <ignored path=".idea/workspace.xml" />
+    <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
+    <option name="TRACKING_ENABLED" value="true" />
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="ChangesViewManager" flattened_view="true" show_ignored="false" />
+  <component name="CreatePatchCommitExecutor">
+    <option name="PATCH_PATH" value="" />
+  </component>
+  <component name="ExecutionTargetManager" SELECTED_TARGET="default_target" />
+  <component name="FavoritesManager">
+    <favorites_list name="dreamlabs4u.github.io" />
+  </component>
+  <component name="FileEditorManager">
+    <leaf>
+      <file leaf-file-name="2015-06-17-web-app.md" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/_posts/2015-06-17-web-app.md">
+          <provider editor-type-id="MultiMarkdownFxPreviewEditor">
+            <state />
+          </provider>
+          <provider selected="true" editor-type-id="split-provider[text-editor;MultiMarkdownPreviewEditor]">
+            <state split_layout="FIRST">
+              <first_editor vertical-scroll-proportion="-12.776">
+                <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+                <folding />
+              </first_editor>
+              <second_editor />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="2015-02-10-welcome-to-jekyll.markdown" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/_posts/2015-02-10-welcome-to-jekyll.markdown">
+          <provider editor-type-id="MultiMarkdownFxPreviewEditor">
+            <state />
+          </provider>
+          <provider selected="true" editor-type-id="split-provider[text-editor;MultiMarkdownPreviewEditor]">
+            <state split_layout="FIRST">
+              <first_editor vertical-scroll-proportion="-0.056">
+                <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+                <folding />
+              </first_editor>
+              <second_editor />
+            </state>
+          </provider>
+        </entry>
+      </file>
+    </leaf>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="GradleLocalSettings">
+    <option name="externalProjectsViewState">
+      <projects_view />
+    </option>
+  </component>
+  <component name="NamedScopeManager">
+    <order />
+  </component>
+  <component name="ProjectFrameBounds">
+    <option name="y" value="23" />
+    <option name="width" value="1440" />
+    <option name="height" value="825" />
+  </component>
+  <component name="ProjectLevelVcsManager" settingsEditedManually="false">
+    <OptionsSetting value="true" id="Add" />
+    <OptionsSetting value="true" id="Remove" />
+    <OptionsSetting value="true" id="Checkout" />
+    <OptionsSetting value="true" id="Update" />
+    <OptionsSetting value="true" id="Status" />
+    <OptionsSetting value="true" id="Edit" />
+    <ConfirmationsSetting value="0" id="Add" />
+    <ConfirmationsSetting value="0" id="Remove" />
+  </component>
+  <component name="ProjectView">
+    <navigator currentView="ProjectPane" proportions="" version="1">
+      <flattenPackages />
+      <showMembers />
+      <showModules />
+      <showLibraryContents />
+      <hideEmptyPackages />
+      <abbreviatePackageNames />
+      <autoscrollToSource />
+      <autoscrollFromSource />
+      <sortByType />
+    </navigator>
+    <panes>
+      <pane id="ProjectPane">
+        <subPane>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="dreamlabs4u.github.io" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="dreamlabs4u.github.io" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="dreamlabs4u.github.io" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="dreamlabs4u.github.io" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="dreamlabs4u.github.io" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="_posts" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+        </subPane>
+      </pane>
+      <pane id="Scratches" />
+      <pane id="PackagesPane" />
+      <pane id="Scope" />
+    </panes>
+  </component>
+  <component name="PropertiesComponent">
+    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
+    <property name="ignore_missing_gitignore" value="true" />
+  </component>
+  <component name="RunManager">
+    <configuration default="true" type="#org.jetbrains.idea.devkit.run.PluginConfigurationType" factoryName="Plugin">
+      <module name="" />
+      <option name="VM_PARAMETERS" value="-Xmx512m -Xms256m -XX:MaxPermSize=250m -ea" />
+      <option name="PROGRAM_PARAMETERS" />
+      <method />
+    </configuration>
+    <configuration default="true" type="Applet" factoryName="Applet">
+      <option name="WIDTH" value="400" />
+      <option name="HEIGHT" value="300" />
+      <option name="POLICY_FILE" value="$APPLICATION_HOME_DIR$/bin/appletviewer.policy" />
+      <module />
+      <method />
+    </configuration>
+    <configuration default="true" type="Application" factoryName="Application">
+      <extension name="coverage" enabled="false" merge="false" sample_coverage="true" runner="idea" />
+      <option name="MAIN_CLASS_NAME" />
+      <option name="VM_PARAMETERS" />
+      <option name="PROGRAM_PARAMETERS" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
+      <option name="ALTERNATIVE_JRE_PATH" />
+      <option name="ENABLE_SWING_INSPECTOR" value="false" />
+      <option name="ENV_VARIABLES" />
+      <option name="PASS_PARENT_ENVS" value="true" />
+      <module name="" />
+      <envs />
+      <method />
+    </configuration>
+    <configuration default="true" type="JUnit" factoryName="JUnit">
+      <extension name="coverage" enabled="false" merge="false" sample_coverage="true" runner="idea" />
+      <module name="" />
+      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
+      <option name="ALTERNATIVE_JRE_PATH" />
+      <option name="PACKAGE_NAME" />
+      <option name="MAIN_CLASS_NAME" />
+      <option name="METHOD_NAME" />
+      <option name="TEST_OBJECT" value="class" />
+      <option name="VM_PARAMETERS" value="-ea" />
+      <option name="PARAMETERS" />
+      <option name="WORKING_DIRECTORY" value="$MODULE_DIR$" />
+      <option name="ENV_VARIABLES" />
+      <option name="PASS_PARENT_ENVS" value="true" />
+      <option name="TEST_SEARCH_SCOPE">
+        <value defaultName="singleModule" />
+      </option>
+      <envs />
+      <patterns />
+      <method />
+    </configuration>
+    <configuration default="true" type="Remote" factoryName="Remote">
+      <option name="USE_SOCKET_TRANSPORT" value="true" />
+      <option name="SERVER_MODE" value="false" />
+      <option name="SHMEM_ADDRESS" value="javadebug" />
+      <option name="HOST" value="localhost" />
+      <option name="PORT" value="5005" />
+      <method />
+    </configuration>
+    <configuration default="true" type="TestNG" factoryName="TestNG">
+      <extension name="coverage" enabled="false" merge="false" sample_coverage="true" runner="idea" />
+      <module name="" />
+      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
+      <option name="ALTERNATIVE_JRE_PATH" />
+      <option name="SUITE_NAME" />
+      <option name="PACKAGE_NAME" />
+      <option name="MAIN_CLASS_NAME" />
+      <option name="METHOD_NAME" />
+      <option name="GROUP_NAME" />
+      <option name="TEST_OBJECT" value="CLASS" />
+      <option name="VM_PARAMETERS" value="-ea" />
+      <option name="PARAMETERS" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="OUTPUT_DIRECTORY" />
+      <option name="ANNOTATION_TYPE" />
+      <option name="ENV_VARIABLES" />
+      <option name="PASS_PARENT_ENVS" value="true" />
+      <option name="TEST_SEARCH_SCOPE">
+        <value defaultName="singleModule" />
+      </option>
+      <option name="USE_DEFAULT_REPORTERS" value="false" />
+      <option name="PROPERTIES_FILE" />
+      <envs />
+      <properties />
+      <listeners />
+      <method />
+    </configuration>
+  </component>
+  <component name="SbtLocalSettings">
+    <option name="modificationStamps">
+      <map>
+        <entry key="$USER_HOME$/Desktop/AllMine/Learning/workspace/ScaldingExercises" value="1463606357000" />
+        <entry key="$PROJECT_DIR$/../../AIDP_Documentation/documentation_20161025/documentation" value="1477444119000" />
+        <entry key="$PROJECT_DIR$/../../EXTRACToriginal/dataproducts.features-onecommscore" value="2923320787000" />
+        <entry key="$PROJECT_DIR$/../../KD_CCAR_Extract/dataproducts.features-onecommscore" value="2922593992000" />
+        <entry key="$PROJECT_DIR$/../../KD_Extract/dataproducts.features-onecommscore" value="2922964021000" />
+        <entry key="$PROJECT_DIR$/../ScaldingExercises" value="1494881575000" />
+        <entry key="$PROJECT_DIR$/../ScaldingInsights" value="1494881575000" />
+        <entry key="$PROJECT_DIR$/../fpinscala" value="1488835475000" />
+        <entry key="$PROJECT_DIR$/../../Prod_FeaturesFeature35/dataproducts.features-onecommscore" value="2897715390000" />
+        <entry key="$PROJECT_DIR$/../../accountcommscore/dataproducts.extracts-accountcommscore_2016_01_24" value="2970453374000" />
+        <entry key="$PROJECT_DIR$/../../accountcommscore/dataproducts.extracts-accountcommscore_BDFRC-158-CLIR" value="2976669150000" />
+        <entry key="$PROJECT_DIR$/../../accountcommscore/dataproducts.extracts-accountcommscore_ClirRel2" value="2981183334000" />
+        <entry key="$PROJECT_DIR$/../../accountcommscore/dataproducts.extracts-accountcommscore_rel2build" value="2981482606000" />
+        <entry key="$PROJECT_DIR$/../../ars_dataproducts.records-onecommscore/dataproducts.records-onecommscore" value="2906142469000" />
+        <entry key="$PROJECT_DIR$/../../bugfix-autocatchup.dataproducts.features-onecommscore/dataproducts.features-onecommscore" value="2905145974000" />
+        <entry key="$PROJECT_DIR$/../../cardposting/cardposting_2016_10_27/dataproducts.records-cardposting" value="1477630786000" />
+        <entry key="$PROJECT_DIR$/../../ccs_card_v2/dataproducts.records-ccscard_20160127" value="2970945184000" />
+        <entry key="$PROJECT_DIR$/../../ccs_card_v2/dataproducts.records-ccscard_20160205FixOnOld" value="2972557358000" />
+        <entry key="$PROJECT_DIR$/../../ccs_card_v2/dataproducts.records-ccscard_20161020/dataproducts.records-ccscard" value="2953852740000" />
+        <entry key="$PROJECT_DIR$/../../ccs_card_v2/dataproducts.records-ccscard_20161110/dataproducts.records-ccscard" value="2957489494000" />
+        <entry key="$PROJECT_DIR$/../../ccs_card_v2/dataproducts.records-ccscard_20161212/dataproducts.records-ccscard" value="2963000206000" />
+        <entry key="$PROJECT_DIR$/../../ccs_card_v2/dataproducts.records-ccscard_20170131" value="2971711226000" />
+        <entry key="$PROJECT_DIR$/../../ccs_card_v2/dataproducts.records-ccscard_20170215patyacct" value="2974234326000" />
+        <entry key="$PROJECT_DIR$/../../ccs_card_v2/dataproducts.records-ccscard_expandCLIR" value="2976314838000" />
+        <entry key="$PROJECT_DIR$/../../ccs_card_v2/dataproducts.records-ccscard_expandCLIRDerv" value="2976316034000" />
+        <entry key="$PROJECT_DIR$/../../ccs_card_v2/dataproducts.records-ccscard_rollback" value="2983088344000" />
+        <entry key="$PROJECT_DIR$/../../ccscyclepointhistory/dataproducts.records-ccscyclepointhistory" value="2978750954000" />
+        <entry key="$PROJECT_DIR$/../../ccscyclepointhistory/dataproducts.records-ccscyclepointhistory_2017_01_24" value="2970439062000" />
+        <entry key="$PROJECT_DIR$/../../ccscyclepointhistory/dataproducts.records-ccscyclepointhistory_releasemarch30" value="2981159540000" />
+        <entry key="$PROJECT_DIR$/../../ccscyclepointhistoryfeatures/dataproducts.features-ccscyclepointhistory_20170130" value="2971461430000" />
+        <entry key="$PROJECT_DIR$/../../ccsoriginalaccount/dataproducts.features-ccsoriginalaccount" value="4465032759000" />
+        <entry key="$PROJECT_DIR$/../../cep.allocator" value="1485319654000" />
+        <entry key="$PROJECT_DIR$/../../coppersmith" value="1459494151000" />
+        <entry key="$PROJECT_DIR$/../../customeraccountconduct/dataproducts.features-ccscard_BDFRC-189" value="2979247716000" />
+        <entry key="$PROJECT_DIR$/../../customercommscore/dataproducts.extracts-customercommscore" value="2972157808000" />
+        <entry key="$PROJECT_DIR$/../../customercreditapplication/dataproducts.records-customercreditapplication" value="2981512296000" />
+        <entry key="$PROJECT_DIR$/../../customergcpsaccountfeatures/dataproducts.features-customergcpsaccount_20161130/dataproducts.features-customergcpsaccount" value="2960758114000" />
+        <entry key="$PROJECT_DIR$/../../customergcpsaccountfeatures/dataproducts.features-customergcpsaccount_BDFRC-117" value="2973898552000" />
+        <entry key="$PROJECT_DIR$/../../customergcpsaccountfeatures/dataproducts.features-customergcpsaccount_featName" value="2981389646000" />
+        <entry key="$PROJECT_DIR$/../../customergcpsaccountfeatures/dataproducts.features-customergcpsaccount_rel2clir" value="2981175994000" />
+        <entry key="$PROJECT_DIR$/../../customergcpsaccountfeatures/dataproducts.features-customergcpsaccount_release30MarchFinal" value="2981138180000" />
+        <entry key="$PROJECT_DIR$/../../customergcpsaccountfeatures/dataproducts.features-customergcpsaccount_releaseMarch30" value="2980655120000" />
+        <entry key="$PROJECT_DIR$/../../customerproductholding/dataproducts.features-customerproductholding" value="2959881500000" />
+        <entry key="$PROJECT_DIR$/../../customerretailcreditapplication/dataproducts.features-customerretailcreditapplication_BDFRC-220" value="2979240505000" />
+        <entry key="$PROJECT_DIR$/../../customersapbp/dataproducts.features-customersapbp" value="7448626538000" />
+        <entry key="$PROJECT_DIR$/../../dataproducts.common" value="1495014090000" />
+        <entry key="$PROJECT_DIR$/../../dataproducts.features-ccscyclepointhistory/dataproducts.features-ccscyclepointhistory_20161206/dataproducts.features-ccscyclepointhistory" value="2961972397000" />
+        <entry key="$PROJECT_DIR$/../../dataproducts.features-ccsoriginalaccount/dataproducts.features-ccsoriginalaccount" value="5955048408000" />
+        <entry key="$PROJECT_DIR$/../../dataproducts.features-ccsoriginalaccount/dataproducts.features-ccsoriginalaccount_impaired" value="7471006250000" />
+        <entry key="$PROJECT_DIR$/../../dataproducts.features-customersapaccount/dataproducts.features-customersapaccount" value="4467052893000" />
+        <entry key="$PROJECT_DIR$/../../dataproducts.features-customersapaccount/dataproducts.features-customersapaccount_release28thMarch" value="2979938500000" />
+        <entry key="$PROJECT_DIR$/../../dataproducts.records-collectioneventhistory/dataproducts.records-collectioneventhistory_dev" value="2985832734000" />
+        <entry key="$PROJECT_DIR$/../../dataproducts.records-customerleadcontact/dataproducts.records-customerleadcontact" value="7466330679000" />
+        <entry key="$PROJECT_DIR$/../../dataproducts.records-digitalchannels" value="2921358380000" />
+        <entry key="$PROJECT_DIR$/../../dataproducts.records-entity" value="2911387978000" />
+        <entry key="$PROJECT_DIR$/../../dbtpj-dataproducts.features-onecommscore" value="2915849204000" />
+        <entry key="$PROJECT_DIR$/../../dev_dataproducts.features-onecommscore" value="2917253650000" />
+        <entry key="$PROJECT_DIR$/../../dev_dataproducts.records-customercreditapplication" value="2922259822000" />
+        <entry key="$PROJECT_DIR$/../../dev_dataproducts.records-onecommscore" value="2914791583000" />
+        <entry key="$PROJECT_DIR$/../../dev_dataproducts.records-pco" value="2922097301000" />
+        <entry key="$PROJECT_DIR$/../../feature35_onecommscore-features/dataproducts.features-onecommscore" value="2892178636000" />
+        <entry key="$PROJECT_DIR$/../../features-util/dataproducts.features-util" value="2982523628000" />
+        <entry key="$PROJECT_DIR$/../../kristiandaysoverlimit/dataproducts.features-ccsoriginalaccount" value="5962703248000" />
+        <entry key="$PROJECT_DIR$/../../latestfeature35_onecommscore-features/dataproducts.features-onecommscore" value="2893047906000" />
+        <entry key="$PROJECT_DIR$/../../meriapcocar_dataproducts.records.onecommscore/dataproducts.records-onecommscore" value="2910978691000" />
+        <entry key="$PROJECT_DIR$/../../october2016release/dataproducts.records-ccscard" value="2953526098000" />
+        <entry key="$PROJECT_DIR$/../../onecommscore-features" value="2890591162000" />
+        <entry key="$PROJECT_DIR$/../../ops.logical/ops.logical_20161117/ops.logical" value="1479346276000" />
+        <entry key="$PROJECT_DIR$/../../pco-dataproducts.features-onecommscore" value="2873866949000" />
+        <entry key="$PROJECT_DIR$/../../pco_record/dataproducts.records-pco_20170203" value="2972191292000" />
+        <entry key="$PROJECT_DIR$/../../pco_record/dataproducts.records-pco_20170502" value="2987366308000" />
+        <entry key="$PROJECT_DIR$/../../pconew.dataproducts.records-onecommscore/dataproducts.records-onecommscore" value="2910295962000" />
+        <entry key="$PROJECT_DIR$/../../pconew_dataproducts.records-onecommscore" value="2917380472000" />
+        <entry key="$PROJECT_DIR$/../../phase2/grdpdctflat_dataproducts_records_onecommscore/dataproducts.records-onecommscore" value="2925863112000" />
+        <entry key="$PROJECT_DIR$/../../postproduction/dataproducts.common" value="1466058357000" />
+        <entry key="$PROJECT_DIR$/../../postproduction/dataproducts.features-onecommscore" value="2932121972000" />
+        <entry key="$PROJECT_DIR$/../../postproduction/dataproducts.records-hlsaccount" value="2940245671000" />
+        <entry key="$PROJECT_DIR$/../../postproduction/dataproducts.records-onecommscore" value="2932243124000" />
+        <entry key="$PROJECT_DIR$/../../postproduction/dev1_dataproducts.records-grdproducthierarchy" value="2930543864000" />
+        <entry key="$PROJECT_DIR$/../../postproduction/dev_dataproducts.extracts-customercommscore" value="2937105404000" />
+        <entry key="$PROJECT_DIR$/../../postproduction/dev_dataproducts.features-accountcreditcard" value="2933103910000" />
+        <entry key="$PROJECT_DIR$/../../postproduction/dev_dataproducts.features-accountcreditcardtransactions" value="2932959826000" />
+        <entry key="$PROJECT_DIR$/../../postproduction/dev_dataproducts.features-customercommscorehistory" value="2932931684000" />
+        <entry key="$PROJECT_DIR$/../../postproduction/dev_dataproducts.features-customerpjtransactions" value="2931048784000" />
+        <entry key="$PROJECT_DIR$/../../postproduction/dev_dataproducts.features-customerretailcreditapplication" value="2932768740000" />
+        <entry key="$PROJECT_DIR$/../../postproduction/dev_dataproducts.records-ccscard" value="2932243646000" />
+        <entry key="$PROJECT_DIR$/../../postproduction/dev_dataproducts.records-grdproducthierarchy" value="2926916038000" />
+        <entry key="$PROJECT_DIR$/../../postproduction/dev_thrift.commscore-results" value="2949019230000" />
+        <entry key="$PROJECT_DIR$/../../postproduction/dev_tooling.hive-udfs" value="1463528922000" />
+        <entry key="$PROJECT_DIR$/../../postproduction/ewan1_dataproducts.features-onecommscore/dataproducts.features-onecommscore" value="2931773540000" />
+        <entry key="$PROJECT_DIR$/../../postproduction/ewan_dataproducts.features-onecommscore" value="2929347326000" />
+        <entry key="$PROJECT_DIR$/../../postproduction/kdcustomerproductholding/dataproducts.features-customerproductholding" value="2936770226000" />
+        <entry key="$PROJECT_DIR$/../../postproduction/meria_ccscard_old/dataproducts.records-onecommscore" value="2943818484000" />
+        <entry key="$PROJECT_DIR$/../../postproduction/meria_latest_pullrequest_ccar/dev_dataproducts.records-customercreditapplication" value="2943169242000" />
+        <entry key="$PROJECT_DIR$/../../postproduction/ops.logical" value="1465447345000" />
+        <entry key="$PROJECT_DIR$/../../postproduction/postprod_dataproducts.features-onecommscore" value="2925027770000" />
+        <entry key="$PROJECT_DIR$/../../postproduction/postprod_dataproducts.records-customercreditapplication" value="2930350358000" />
+        <entry key="$PROJECT_DIR$/../../postproduction/postprod_dataproducts.records-pco" value="2925027576000" />
+        <entry key="$PROJECT_DIR$/../../postproduction/splitextract/dataproducts.features-onecommscore" value="2937115042000" />
+        <entry key="$PROJECT_DIR$/../../postproduction/toni_dataproducts.features-onecommscore" value="2928277068000" />
+        <entry key="$PROJECT_DIR$/../../productionfix/pcobugfix2/dataproducts.records-customercreditapplication" value="2934343002000" />
+        <entry key="$PROJECT_DIR$/../../rel2_dataproducts.records-customercreditapplication" value="2924291712000" />
+        <entry key="$PROJECT_DIR$/../../rel_dataproducts.features-onecommscore" value="2923270744000" />
+        <entry key="$PROJECT_DIR$/../../salarycreditfeatures/dataproducts.features-customerpjtransactions" value="2963168563000" />
+        <entry key="$PROJECT_DIR$/../../securityImpl_FeaturesFeature35/dataproducts.features-onecommscore" value="2894740562000" />
+        <entry key="$PROJECT_DIR$/../../surveyormeria_dataproducts.recrods.onecommscore/dev_dataproducts.records-onecommscore" value="2917063988000" />
+        <entry key="$PROJECT_DIR$/../../toney-dataproducts.features-onecommscore" value="2870577184000" />
+        <entry key="$PROJECT_DIR$/../../toney-dataproducts.records-cardpurchase" value="2894451196000" />
+        <entry key="$PROJECT_DIR$/../../toney-dataproducts.records-entity" value="2873834460000" />
+        <entry key="$PROJECT_DIR$/../../toney-tooling.hive-udfs" value="1437028920000" />
+        <entry key="$PROJECT_DIR$/../../toney.dataproducts.events-fundsflow" value="2870032732000" />
+        <entry key="$PROJECT_DIR$/../../toney.dataproducts.features-commscore" value="2870077340000" />
+        <entry key="$PROJECT_DIR$/../../tooling.hive-udfs/tooling.hive-udfs_sebinusecase" value="1486356149000" />
+        <entry key="$PROJECT_DIR$/../../transactfeatures_dataproducts.features-onecommscore/dataproducts.features-onecommscore" value="2898882646000" />
+        <entry key="$PROJECT_DIR$/../../vineeth/dataproducts.records-entity" value="2912398926000" />
+        <entry key="$PROJECT_DIR$/../../withContextFeatures35/dataproducts.features-onecommscore" value="2893417638000" />
+      </map>
+    </option>
+    <option name="externalProjectsViewState">
+      <projects_view />
+    </option>
+  </component>
+  <component name="ShelveChangesManager" show_recycled="false" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="be31e74a-34ff-479e-974a-0c561873b4d8" name="Default" comment="" />
+      <created>1495139083170</created>
+      <option name="number" value="Default" />
+      <updated>1495139083170</updated>
+    </task>
+    <servers />
+  </component>
+  <component name="ToolWindowManager">
+    <frame x="0" y="23" width="1440" height="825" extended-state="0" />
+    <editor active="true" />
+    <layout>
+      <window_info id="Palette&#9;" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="-1" side_tool="false" content_ui="tabs" />
+      <window_info id="UI Designer" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="-1" side_tool="false" content_ui="tabs" />
+      <window_info id="Designer" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="-1" side_tool="false" content_ui="tabs" />
+      <window_info id="Palette" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="-1" side_tool="false" content_ui="tabs" />
+      <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="-1" side_tool="false" content_ui="tabs" />
+      <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
+      <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="-1" side_tool="true" content_ui="tabs" />
+      <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="-1" side_tool="true" content_ui="tabs" />
+      <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="-1" side_tool="false" content_ui="tabs" />
+      <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
+      <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
+      <window_info id="Maven Projects" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="-1" side_tool="false" content_ui="tabs" />
+      <window_info id="Application Servers" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="-1" side_tool="false" content_ui="tabs" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.24964234" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
+      <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
+      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
+      <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="SLIDING" type="SLIDING" visible="false" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
+      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
+      <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
+    </layout>
+  </component>
+  <component name="VcsContentAnnotationSettings">
+    <option name="myLimit" value="2678400000" />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager />
+    <watches-manager />
+  </component>
+  <component name="editorHistoryManager">
+    <entry file="file://$PROJECT_DIR$/_posts/2015-06-17-web-app.md">
+      <provider editor-type-id="MultiMarkdownFxPreviewEditor">
+        <state />
+      </provider>
+      <provider selected="true" editor-type-id="split-provider[text-editor;MultiMarkdownPreviewEditor]">
+        <state split_layout="FIRST">
+          <first_editor vertical-scroll-proportion="-12.776">
+            <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+            <folding />
+          </first_editor>
+          <second_editor />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/_posts/2015-02-10-welcome-to-jekyll.markdown">
+      <provider editor-type-id="MultiMarkdownFxPreviewEditor">
+        <state />
+      </provider>
+      <provider selected="true" editor-type-id="split-provider[text-editor;MultiMarkdownPreviewEditor]">
+        <state split_layout="FIRST">
+          <first_editor vertical-scroll-proportion="-0.056">
+            <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+            <folding />
+          </first_editor>
+          <second_editor />
+        </state>
+      </provider>
+    </entry>
+  </component>
+</project>
