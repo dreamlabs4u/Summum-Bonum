@@ -5,9 +5,76 @@
     <description></description>
     <link>http://localhost:4000/</link>
     <atom:link href="http://localhost:4000/feed.xml" rel="self" type="application/rss+xml"/>
-    <pubDate>Fri, 19 May 2017 07:17:54 +1000</pubDate>
-    <lastBuildDate>Fri, 19 May 2017 07:17:54 +1000</lastBuildDate>
+    <pubDate>Fri, 19 May 2017 07:29:17 +1000</pubDate>
+    <lastBuildDate>Fri, 19 May 2017 07:29:17 +1000</lastBuildDate>
     <generator>Jekyll v3.4.3</generator>
+    
+      <item>
+        <title>Monad Explained! - The Scala way</title>
+        <description>&lt;ul id=&quot;markdown-toc&quot;&gt;
+  &lt;li&gt;&lt;a href=&quot;#monad&quot; id=&quot;markdown-toc-monad&quot;&gt;Monad&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h1 id=&quot;monad&quot;&gt;Monad&lt;/h1&gt;
+
+Monad, M[T], is an amplification (or considered as a wrapper) of a generic type T such that
+
+&lt;ol&gt;
+  &lt;li&gt;
+    Any Monad, M[T] can be created by applying a creation function on T
+ x: T =&amp;gt; M[T]
+  &lt;/li&gt;
+  &lt;li&gt;
+    It provides a mechanism to for applying a function which takes T and gives out Monad of the resultant type
+
+    (x: M[T], fn: T =&amp;gt; M[Z]) =&amp;gt; M[Z]
+  &lt;/li&gt;
+&lt;/ol&gt;
+
+These two featurs must obey the following 3 Monadic law : -
+
+&lt;ol&gt;
+  &lt;li&gt;
+    If you apply the Monad creation function to an any existing Monadic instnace then it should give out a logical equivalent Monad
+
+    monad1 = M[T]
+ monad2 = creationFn(monad1)
+
+    monad 1 and monad2 should be same
+  &lt;/li&gt;
+  &lt;li&gt;
+    Appying a function to the result of applying the construction function should always produce a logically equivalent Monad if we apply 
+that function directly on the value
+  &lt;/li&gt;
+  &lt;li&gt;
+    Composition rule :
+  &lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;div class=&quot;language-scala highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;	&lt;span class=&quot;k&quot;&gt;val&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;f&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;X&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;=&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;M&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;kt&quot;&gt;Y&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;]&lt;/span&gt;
+	&lt;span class=&quot;k&quot;&gt;val&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;g&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Y&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;=&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;M&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;kt&quot;&gt;Z&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;]&lt;/span&gt;
+	&lt;span class=&quot;n&quot;&gt;M&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;kt&quot;&gt;X&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;]&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;mx&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;f&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;;&lt;/span&gt;
+	&lt;span class=&quot;k&quot;&gt;val&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;my&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;M&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;kt&quot;&gt;Y&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;]&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;monadicFunction&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;mx&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;f&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
+	&lt;span class=&quot;k&quot;&gt;val&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;mz1&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;M&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;kt&quot;&gt;Z&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;]&lt;/span&gt;  &lt;span class=&quot;k&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;monadicFunction&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;my&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;g&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
+
+	&lt;span class=&quot;k&quot;&gt;val&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;h&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;M&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;kt&quot;&gt;Z&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;]&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;monadicCompose&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;f&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;g&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
+	&lt;span class=&quot;k&quot;&gt;val&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;mz2&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;monadicFunction&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;mx&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;h&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+Applying to a value a first function followed by applying to the result a second function should produce a logically identical Monad 
+if you applying a composition function to the origial value.
+</description>
+        <pubDate>Fri, 19 May 2017 00:00:00 +1000</pubDate>
+        <link>http://localhost:4000/2017/05/19/monad-explained/</link>
+        <guid isPermaLink="true">http://localhost:4000/2017/05/19/monad-explained/</guid>
+        
+        <category>Scala</category>
+        
+        
+        <category>Scala</category>
+        
+      </item>
     
       <item>
         <title>A reborn child!</title>

@@ -6,15 +6,15 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <title>Tags</title>
-    <meta name="description" content="">
+    <title>Monad Explained! - The Scala way</title>
+    <meta name="description" content="  MonadMonadMonad, M[T], is an amplification (or considered as a wrapper) of a generic type T such that      Any Monad, M[T] can be created by applying a cre...">
 
     <link rel="shortcut icon" href="/favicon.ico?" type="image/x-icon">
     <link rel="icon" href="/favicon.ico?" type="image/x-icon">
     <link rel="stylesheet" href="https://cdn.bootcss.com/font-awesome/4.7.0/css/font-awesome.min.css">
     <link rel="stylesheet" href="https://at.alicdn.com/t/font_8v3czwksspqlg14i.css">
     <link rel="stylesheet" href="/css/main.css ">
-    <link rel="canonical" href="http://localhost:4000/tag/">
+    <link rel="canonical" href="http://localhost:4000/2017/05/19/monad-explained/">
     <link rel="alternate" type="application/rss+xml" title="Dreamlabs4u" href="http://localhost:4000/feed.xml ">
 
 
@@ -88,8 +88,8 @@
                     
                     <li>
                         
-                        <a class="active" href="/tag/">
-                            
+                        <a href="/tag/">
+                        
                             <i class="fa fa-tags"></i>Tags
                         </a>
                     </li>
@@ -137,63 +137,26 @@
 </header>
 
 
-        <div class="page clearfix">
+        <div class="page clearfix" post>
     <div class="left">
-        <h1>Tags</h1>
-        <hr>
-        
-        
+        <h1>Monad Explained! - The Scala way</h1>
+        <div class="label">
 
-        <ul>
-        
-          <h2 id="Philosophy">Philosophy</h2>
-          
-            <li>
-                <time>
-                2017-05-19 Fri.
-                </time>
-                <a class="title" href="/2017/05/19/a-reborn-child/">A reborn child!</a>
+            <div class="label-card">
+                <i class="fa fa-calendar"></i>2017-05-19
+            </div>
 
+            <div class="label-card">
+                <i class="fa fa-user"></i>Toney Thomas
                 
+            </div>
 
-
-<!-- <span class="point">•</span> -->
-<span class="categories">
-  <i class="fa fa-th-list"></i>
-  
-    
-        <a href="/category/#Philosophy" title="Category: Philosophy" rel="category">Philosophy</a>
-    
-  
-
-  <!-- <span class="point">•</span> -->
-</span>
-
-
+            <div class="label-card">
                 
-<!-- <span class="point">•</span> -->
-<span class="pageTag">
-  <i class="fa fa-tags"></i>
-  
-    
-        <a href="/tag/#Philosophy" title="Tag: Philosophy" rel="tag">Philosophy</a>
-    
-  
+            </div>
 
-</span>
-
-            </li>
-          
-        
-          <h2 id="Scala">Scala</h2>
-          
-            <li>
-                <time>
-                2017-05-19 Fri.
-                </time>
-                <a class="title" href="/2017/05/19/monad-explained/">Monad Explained! - The Scala way</a>
-
-                
+            <div class="label-card">
+            
 
 
 <!-- <span class="point">•</span> -->
@@ -209,22 +172,139 @@
 </span>
 
 
-                
+            </div>
+
+            <div class="label-card">
+            
 <!-- <span class="point">•</span> -->
 <span class="pageTag">
   <i class="fa fa-tags"></i>
   
     
+        <!--a href="/tag/#Scala" title="Tag: Scala" rel="tag">Scala</a-->
         <a href="/tag/#Scala" title="Tag: Scala" rel="tag">Scala</a>
     
   
 
 </span>
 
-            </li>
-          
+            </div>
+
+        </div>
+        <hr>
+        <article itemscope itemtype="http://schema.org/BlogPosting">
+        <ul id="markdown-toc">
+  <li><a href="#monad" id="markdown-toc-monad">Monad</a></li>
+</ul>
+
+<h1 id="monad">Monad</h1>
+
+<p>Monad, M[T], is an amplification (or considered as a wrapper) of a generic type T such that</p>
+
+<ol>
+  <li>
+    <p>Any Monad, M[T] can be created by applying a creation function on T
+ x: T =&gt; M[T]</p>
+  </li>
+  <li>
+    <p>It provides a mechanism to for applying a function which takes T and gives out Monad of the resultant type</p>
+
+    <p>(x: M[T], fn: T =&gt; M[Z]) =&gt; M[Z]</p>
+  </li>
+</ol>
+
+<p>These two featurs must obey the following 3 Monadic law : -</p>
+
+<ol>
+  <li>
+    <p>If you apply the Monad creation function to an any existing Monadic instnace then it should give out a logical equivalent Monad</p>
+
+    <p>monad1 = M[T]
+ monad2 = creationFn(monad1)</p>
+
+    <p>monad 1 and monad2 should be same</p>
+  </li>
+  <li>
+    <p>Appying a function to the result of applying the construction function should always produce a logically equivalent Monad if we apply 
+that function directly on the value</p>
+  </li>
+  <li>
+    <p>Composition rule :</p>
+  </li>
+</ol>
+
+<div class="language-scala highlighter-rouge"><pre class="highlight"><code>	<span class="k">val</span> <span class="n">f</span> <span class="k">=</span> <span class="o">(</span><span class="n">X</span><span class="o">)</span> <span class="k">=&gt;</span> <span class="n">M</span><span class="o">[</span><span class="kt">Y</span><span class="o">]</span>
+	<span class="k">val</span> <span class="n">g</span> <span class="k">=</span> <span class="o">(</span><span class="n">Y</span><span class="o">)</span> <span class="k">=&gt;</span> <span class="n">M</span><span class="o">[</span><span class="kt">Z</span><span class="o">]</span>
+	<span class="n">M</span><span class="o">[</span><span class="kt">X</span><span class="o">]</span> <span class="n">mx</span> <span class="k">=</span> <span class="n">f</span><span class="o">;</span>
+	<span class="k">val</span> <span class="n">my</span> <span class="k">:</span> <span class="kt">M</span><span class="o">[</span><span class="kt">Y</span><span class="o">]</span> <span class="k">=</span> <span class="n">monadicFunction</span><span class="o">(</span><span class="n">mx</span><span class="o">,</span> <span class="n">f</span><span class="o">)</span>
+	<span class="k">val</span> <span class="n">mz1</span> <span class="k">:</span> <span class="kt">M</span><span class="o">[</span><span class="kt">Z</span><span class="o">]</span>  <span class="k">=</span> <span class="n">monadicFunction</span><span class="o">(</span><span class="n">my</span><span class="o">,</span> <span class="n">g</span><span class="o">)</span>
+
+	<span class="k">val</span> <span class="n">h</span><span class="k">:</span> <span class="kt">M</span><span class="o">[</span><span class="kt">Z</span><span class="o">]</span> <span class="k">=</span> <span class="n">monadicCompose</span><span class="o">(</span><span class="n">f</span><span class="o">,</span> <span class="n">g</span><span class="o">);</span>
+	<span class="k">val</span> <span class="n">mz2</span> <span class="k">=</span> <span class="n">monadicFunction</span><span class="o">(</span><span class="n">mx</span><span class="o">,</span> <span class="n">h</span><span class="o">);</span>
+</code></pre>
+</div>
+
+<p>Applying to a value a first function followed by applying to the result a second function should produce a logically identical Monad 
+if you applying a composition function to the origial value.</p>
+
+
+        </article>
+        <hr>
+
         
-        </ul>
+        
+            
+            
+                
+                    
+                
+            
+        
+        
+
+        <div class="post-recent">
+    <div class="pre">
+        
+        <p><strong>上一篇</strong> <a href="/2017/05/19/a-reborn-child/">A reborn child!</a></p>
+        
+    </div>
+    <div class="nex">
+
+        
+    </div>
+</div>
+
+
+        <h2 id="comments">Comments</h2>
+        
+
+
+<div id="disqus_thread"></div>
+<script>
+    /**
+     * RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
+     * LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables
+     */
+
+    var disqus_config = function() {
+        this.page.url = 'http://localhost:4000/2017/05/19/monad-explained/'; // Replace PAGE_URL with your page's canonical URL variable
+        this.page.identifier = 'http://localhost:4000/2017/05/19/monad-explained/'; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
+    };
+
+    (function() { // DON'T EDIT BELOW THIS LINE
+        var d = document,
+            s = d.createElement('script');
+
+        s.src = '//gaohaoyang.disqus.com/embed.js';
+
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript>
+
+
+
 
     </div>
     <button class="anchor"><i class="fa fa-anchor"></i></button>
@@ -237,20 +317,8 @@
                     Content
                 </div>
                 <ul id="content-side" class="content-ul">
-                    
-                    <li>
-                        <a data-scroll href="#Philosophy">
-                            Philosophy (1)
-                        </a>
-                    </li>
-                    
-                    <li>
-                        <a data-scroll href="#Scala">
-                            Scala (1)
-                        </a>
-                    </li>
-                    
-
+                    <li><a href="#similar_posts">Similar Posts</a></li>
+                    <li><a href="#comments">Comments</a></li>
                 </ul>
             </div>
             <!-- 其他div框放到这里 -->
@@ -258,6 +326,17 @@
         </div>
     </div>
 </div>
+<script>
+/**
+ * target _blank
+ */
+(function() {
+    var aTags = document.querySelectorAll('article a:not([id])')
+    for (var i = 0; i < aTags.length; i++) {
+        aTags[i].setAttribute('target', '_blank')
+    }
+}());
+</script>
 <script src="/js/pageContent.js " charset="utf-8"></script>
 
 

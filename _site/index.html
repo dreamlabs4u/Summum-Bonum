@@ -145,6 +145,118 @@
             
               <li>
                 <h2>
+                  <a class="post-link" href="/2017/05/19/monad-explained/">Monad Explained! - The Scala way</a>
+                </h2>
+                <div class="label">
+                    <div class="label-card">
+                        <i class="fa fa-calendar"></i>2017-05-19
+                    </div>
+                    <div class="label-card">
+                        <i class="fa fa-user"></i>Toney Thomas
+                        
+                    </div>
+                    <div class="label-card">
+                        
+                    </div>
+
+                    <div class="label-card">
+                    
+
+
+<!-- <span class="point">•</span> -->
+<span class="categories">
+  <i class="fa fa-th-list"></i>
+  
+    
+        <a href="/category/#Scala" title="Category: Scala" rel="category">Scala</a>
+    
+  
+
+  <!-- <span class="point">•</span> -->
+</span>
+
+
+                    </div>
+
+                    <div class="label-card">
+                    
+<!-- <span class="point">•</span> -->
+<span class="pageTag">
+  <i class="fa fa-tags"></i>
+  
+    
+        <a href="/tag/#Scala" title="Tag: Scala" rel="tag">Scala</a>
+    
+  
+
+</span>
+
+                    </div>
+                </div>
+                <div class="excerpt">
+                    <ul id="markdown-toc">
+  <li><a href="#monad" id="markdown-toc-monad">Monad</a></li>
+</ul>
+
+<h1 id="monad">Monad</h1>
+
+<p>Monad, M[T], is an amplification (or considered as a wrapper) of a generic type T such that</p>
+
+<ol>
+  <li>
+    <p>Any Monad, M[T] can be created by applying a creation function on T
+ x: T =&gt; M[T]</p>
+  </li>
+  <li>
+    <p>It provides a mechanism to for applying a function which takes T and gives out Monad of the resultant type</p>
+
+    <p>(x: M[T], fn: T =&gt; M[Z]) =&gt; M[Z]</p>
+  </li>
+</ol>
+
+<p>These two featurs must obey the following 3 Monadic law : -</p>
+
+<ol>
+  <li>
+    <p>If you apply the Monad creation function to an any existing Monadic instnace then it should give out a logical equivalent Monad</p>
+
+    <p>monad1 = M[T]
+ monad2 = creationFn(monad1)</p>
+
+    <p>monad 1 and monad2 should be same</p>
+  </li>
+  <li>
+    <p>Appying a function to the result of applying the construction function should always produce a logically equivalent Monad if we apply 
+that function directly on the value</p>
+  </li>
+  <li>
+    <p>Composition rule :</p>
+  </li>
+</ol>
+
+<div class="language-scala highlighter-rouge"><pre class="highlight"><code>	<span class="k">val</span> <span class="n">f</span> <span class="k">=</span> <span class="o">(</span><span class="n">X</span><span class="o">)</span> <span class="k">=&gt;</span> <span class="n">M</span><span class="o">[</span><span class="kt">Y</span><span class="o">]</span>
+	<span class="k">val</span> <span class="n">g</span> <span class="k">=</span> <span class="o">(</span><span class="n">Y</span><span class="o">)</span> <span class="k">=&gt;</span> <span class="n">M</span><span class="o">[</span><span class="kt">Z</span><span class="o">]</span>
+	<span class="n">M</span><span class="o">[</span><span class="kt">X</span><span class="o">]</span> <span class="n">mx</span> <span class="k">=</span> <span class="n">f</span><span class="o">;</span>
+	<span class="k">val</span> <span class="n">my</span> <span class="k">:</span> <span class="kt">M</span><span class="o">[</span><span class="kt">Y</span><span class="o">]</span> <span class="k">=</span> <span class="n">monadicFunction</span><span class="o">(</span><span class="n">mx</span><span class="o">,</span> <span class="n">f</span><span class="o">)</span>
+	<span class="k">val</span> <span class="n">mz1</span> <span class="k">:</span> <span class="kt">M</span><span class="o">[</span><span class="kt">Z</span><span class="o">]</span>  <span class="k">=</span> <span class="n">monadicFunction</span><span class="o">(</span><span class="n">my</span><span class="o">,</span> <span class="n">g</span><span class="o">)</span>
+
+	<span class="k">val</span> <span class="n">h</span><span class="k">:</span> <span class="kt">M</span><span class="o">[</span><span class="kt">Z</span><span class="o">]</span> <span class="k">=</span> <span class="n">monadicCompose</span><span class="o">(</span><span class="n">f</span><span class="o">,</span> <span class="n">g</span><span class="o">);</span>
+	<span class="k">val</span> <span class="n">mz2</span> <span class="k">=</span> <span class="n">monadicFunction</span><span class="o">(</span><span class="n">mx</span><span class="o">,</span> <span class="n">h</span><span class="o">);</span>
+</code></pre>
+</div>
+
+<p>Applying to a value a first function followed by applying to the result a second function should produce a logically identical Monad 
+if you applying a composition function to the origial value.</p>
+
+                </div>
+                <div class="read-all">
+                    <a  href="/2017/05/19/monad-explained/"><i class="fa fa-newspaper-o"></i>Read All</a>
+                </div>
+                <hr>
+              </li>
+            
+              <li>
+                <h2>
                   <a class="post-link" href="/2017/05/19/a-reborn-child/">A reborn child!</a>
                 </h2>
                 <div class="label">
@@ -237,6 +349,8 @@
                 </div>
                 <ul class="content-ul" recent>
                     
+                        <li><a href="/2017/05/19/monad-explained/">Monad Explained! - The Scala way</a></li>
+                    
                         <li><a href="/2017/05/19/a-reborn-child/">A reborn child!</a></li>
                     
                 </ul>
@@ -254,6 +368,15 @@
                         <a href="/category/#Philosophy" class="categories-list-item" cate="Philosophy">
                             <span class="name">
                                 Philosophy
+                            </span>
+                            <span class="badge">1</span>
+                        </a>
+                    </li>
+                    
+                    <li>
+                        <a href="/category/#Scala" class="categories-list-item" cate="Scala">
+                            <span class="name">
+                                Scala
                             </span>
                             <span class="badge">1</span>
                         </a>
@@ -282,6 +405,13 @@
                       
                       
                       <a href="/tag/#Philosophy" style="font-size: 9pt; color: #999;">Philosophy</a>
+                    
+                      
+                      
+                      
+                      
+                      
+                      <a href="/tag/#Scala" style="font-size: 9pt; color: #999;">Scala</a>
                     
                 </div>
             </div>
