@@ -18,29 +18,6 @@
     <link rel="alternate" type="application/rss+xml" title="Dreamlabs4u" href="http://localhost:4000/feed.xml ">
 
 
-    <script>
-    // 百度统计代码
-    var _hmt = _hmt || [];
-    (function() {
-      var hm = document.createElement("script");
-      hm.src = "//hm.baidu.com/hm.js?cf8506e0ef223e57ff6239944e5d46a4";
-      var s = document.getElementsByTagName("script")[0];
-      s.parentNode.insertBefore(hm, s);
-    })();
-    </script>
-
-
-    <script>
-    // google analytics
-      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-      })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
-
-      ga('create', 'UA-72449510-4', 'auto');
-      ga('send', 'pageview');
-
-    </script>
 
 
 
@@ -131,6 +108,8 @@
                 
                     
                 
+                    
+                
             </ul>
         </nav>
     </div>
@@ -142,6 +121,643 @@
         <h1>The Summum Bonum!</h1>
         <hr>
         <ul>
+            
+              <li>
+                <h2>
+                  <a class="post-link" href="/2017/06/16/A-Humble-attempt-to-Understand-Streaming-Part1/">A Humble attempt to Understand Streaming Data and the way we process it!</a>
+                </h2>
+                <div class="label">
+                    <div class="label-card">
+                        <i class="fa fa-calendar"></i>2017-06-16
+                    </div>
+                    <div class="label-card">
+                        <i class="fa fa-user"></i>Toney Thomas
+                        
+                    </div>
+                    <div class="label-card">
+                        
+                    </div>
+
+                    <div class="label-card">
+                    
+
+
+<!-- <span class="point">•</span> -->
+<span class="categories">
+  <i class="fa fa-th-list"></i>
+  
+    
+        <a href="/category/#Scala" title="Category: Scala" rel="category">Scala</a>
+    
+  
+
+  <!-- <span class="point">•</span> -->
+</span>
+
+
+                    </div>
+
+                    <div class="label-card">
+                    
+<!-- <span class="point">•</span> -->
+<span class="pageTag">
+  <i class="fa fa-tags"></i>
+  
+    
+        <a href="/tag/#Scala," title="Tag: Scala," rel="tag">Scala,</a>&nbsp;
+    
+        <a href="/tag/#Spark," title="Tag: Spark," rel="tag">Spark,</a>&nbsp;
+    
+        <a href="/tag/#Spark-Streaming" title="Tag: Spark-Streaming" rel="tag">Spark-Streaming</a>
+    
+  
+
+</span>
+
+                    </div>
+                </div>
+                <div class="excerpt">
+                    <ul id="markdown-toc">
+  <li><a href="#batch-data-vs-streaming-data-" id="markdown-toc-batch-data-vs-streaming-data-">Batch Data Vs Streaming Data …</a></li>
+  <li><a href="#indefinite-flow-of-data-" id="markdown-toc-indefinite-flow-of-data-">Indefinite flow of data …</a></li>
+  <li><a href="#process_pattern_1--process-data-as-and-when-it-is-available" id="markdown-toc-process_pattern_1--process-data-as-and-when-it-is-available"><em>#Process_Pattern_1</em> : Process data as and when it is available.</a></li>
+</ul>
+
+<p>Recently my friend has asked me, “Dude, it’s been quite some time that you have been working on Big Data and related software 
+stacks. I have a simple problem and could you please educate me on these jargons and provide a suitable solution ? “</p>
+
+<p>The inherent repulsive behaviour in me have put me in a defensive mode but I somehow mustered enough courage to hear the problem statement out and 
+it goes like this :-</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>"Let's assume that you have a stream of data flowing in and I want to put the data into different buckets by aligning with the following rules :-
+
+    1. The records in a given bucket shouldn't be duplicates 
+    2. All the incoming data should be emitted out i.e the collection of data in different buckets will be the same as incoming data. 
+    
+Once, the data is arranged in different buckets, we should be able to call a Sink. Let's assume this as an HTTP API Service / HDFS output location.     
+</code></pre>
+</div>
+
+<p>Whenever I am encountered with a problem, I will try to picturise the statement in my mind (I assume our brain has some ‘magical’ power
+to process and give out results when we lift problem statements into diagrams with box and connectors :) ) and that goes like this :-</p>
+
+<p><img src="/images/sparkstreaming_ps1.png" alt="Problem Statement" /></p>
+
+<p>Ok, we are successful in plotting the problem statements using box and connectors. But, I already find myself bombarded with lot of 
+questions which I am not certain about.</p>
+
+<ol>
+  <li><em>What is a streaming data ?</em></li>
+  <li><em>What is the best mechanism to ingest it.</em></li>
+  <li><em>Even if I find a mechanism to ingest the data how much of the incoming data will can be processed at a time ?</em></li>
+  <li><em>What all things can be done with the streaming dataset and methods available for sink ?</em></li>
+</ol>
+
+<p>We will try to answer each of these questions at different points in the journey.</p>
+
+<p>As we all do, my immediate reflex was to google on these jargons and without much hassle I was able to come up with the 
+following conclusions.</p>
+
+<h2 id="batch-data-vs-streaming-data-">Batch Data Vs Streaming Data …</h2>
+
+<p>In real world data is generated majorly in two ways, end result of a statistical analysis or by the end result of an event. Lets say,
+if I am periodically checking the account balances of customers in a bank or memory usage in a computer and records it as a dataset then 
+it can be fairly be categorised as dataset derived out of statistical analysis. There is another class of dataset generated out of instances like
+data generated out of sensors, security systems, medical devices based on events happening at their habitat. We couldn’t simply predict the occurrence interval of those
+data. For instance, lets treat the webserver logs as a dataset and the data will be continuously generated whenever someone accesses any of the
+websites hosted on that server. This continuous flow of events can be called as streaming dataset. In a typical Big Data Environment, the need 
+for performing real-time stream processing is rapidly increasing and below is some witty but striking example to reason the statement.</p>
+
+<p><img src="/images/streamvsbatch.png" alt="Strem Vs Batch" /></p>
+
+<h2 id="indefinite-flow-of-data-">Indefinite flow of data …</h2>
+
+<p>Now that we know the difference between the Batch Data and Streaming data processing, the very first concern that would come to our mind is its
+behaviour - the indefinite flow of incoming data. We should have a mechanism to make sure that all the incoming data is processed as and when it 
+is available. In layman terms, I can think of couple of ways to handle this scenario</p>
+
+<ol>
+  <li>Have a processing layer capable of processing the data as and when it is available. - <em>#Process_Pattern_1</em></li>
+  <li>Have a queueing system in place to hold the incoming data and let the processing layer source the data from there and process. <em>#Process_Pattern_2</em></li>
+</ol>
+
+<p>On further research, I narrowed down my options for the Processing Layer. We can either use Spark Streaming / Storm as a processing layer and 
+and Kafka / Flume as queuing system to control the flow of incoming data before it is served for processing.</p>
+
+<p><img src="/images/SparkStreamingDiag.png" alt="Spark Streaming Architecture" /></p>
+
+<p>But, in this post we will be concentrating only on the Spark Streaming + Kafka Integration to implement the solution to the problem we had started with.</p>
+
+<h2 id="process_pattern_1--process-data-as-and-when-it-is-available"><em>#Process_Pattern_1</em> : Process data as and when it is available.</h2>
+
+<p>Before coming into a solution, we will try to get a basic understanding about the Processing Layer (Spark Streaming) using a simple 
+network word count application. Let’s assume that we have a netcat server as a source for streaming dataset and our aim is to compute the
+word count on the incoming data. In the case of batch mode word count, <a href="">Simple Word Count using Spark</a>, we were reading in the source dataset,
+doing the RDD transformations and computes the word count on the whole dataset and finally the results were written on to the disk. In that 
+case the actual computation was done on the whole dataset. But, when it comes to the real time streaming, we do not know what can be the size 
+of the dataset and when should the computation on that defined dataset be emitted out. This is where the relevance of batch size comes into picture.</p>
+
+<div class="language-scala highlighter-rouge"><pre class="highlight"><code>    <span class="c1">// Create the context with a 1 second batch size
+</span>    <span class="k">val</span> <span class="n">sparkConf</span> <span class="k">=</span> <span class="k">new</span> <span class="nc">SparkConf</span><span class="o">().</span><span class="n">setMaster</span><span class="o">(</span><span class="n">args</span><span class="o">(</span><span class="mi">0</span><span class="o">)).</span><span class="n">setAppName</span><span class="o">(</span><span class="s">"NetworkWordCount"</span><span class="o">)</span>
+    <span class="k">val</span> <span class="n">ssc</span> <span class="k">=</span> <span class="k">new</span> <span class="nc">StreamingContext</span><span class="o">(</span><span class="n">sparkConf</span><span class="o">,</span> <span class="nc">Seconds</span><span class="o">(</span><span class="mi">1</span><span class="o">))</span>
+    
+    <span class="c1">// Create a socket stream(ReceiverInputDStream) on target ip:port
+</span>    <span class="k">val</span> <span class="n">lines</span> <span class="k">=</span> <span class="n">ssc</span><span class="o">.</span><span class="n">socketTextStream</span><span class="o">(</span><span class="n">args</span><span class="o">(</span><span class="mi">1</span><span class="o">),</span> <span class="n">args</span><span class="o">(</span><span class="mi">2</span><span class="o">).</span><span class="n">toInt</span><span class="o">,</span> <span class="nc">StorageLevel</span><span class="o">.</span><span class="nc">MEMORY_AND_DISK_SER</span><span class="o">)</span>
+    
+    <span class="c1">// Split words by space to form DStream[String]
+</span>    <span class="k">val</span> <span class="n">words</span> <span class="k">=</span> <span class="n">lines</span><span class="o">.</span><span class="n">flatMap</span><span class="o">(</span><span class="k">_</span><span class="o">.</span><span class="n">split</span><span class="o">(</span><span class="s">" "</span><span class="o">))</span>
+    
+    <span class="c1">// count the words to form DStream[(String, Int)]
+</span>    <span class="k">val</span> <span class="n">wordCounts</span> <span class="k">=</span> <span class="n">words</span><span class="o">.</span><span class="n">map</span><span class="o">(</span><span class="n">x</span> <span class="k">=&gt;</span> <span class="o">(</span><span class="n">x</span><span class="o">,</span> <span class="mi">1</span><span class="o">)).</span><span class="n">reduceByKey</span><span class="o">(</span><span class="k">_</span> <span class="o">+</span> <span class="k">_</span><span class="o">)</span>
+    
+    <span class="c1">// print the word count in the batch
+</span>    <span class="n">wordCounts</span><span class="o">.</span><span class="n">print</span><span class="o">()</span>
+    
+    <span class="n">ssc</span><span class="o">.</span><span class="n">start</span><span class="o">()</span>
+    
+    <span class="n">ssc</span><span class="o">.</span><span class="n">awaitTermination</span><span class="o">()</span>
+</code></pre>
+</div>
+
+<p>Internally, it works as follows. Spark Streaming receives live input data streams and divides the data into batches, which 
+are then processed by the Spark engine to generate the final stream of results in batches.</p>
+
+<p>The typical “word count” comes to the rescue. I will try to explain the</p>
+
+                </div>
+                <div class="read-all">
+                    <a  href="/2017/06/16/A-Humble-attempt-to-Understand-Streaming-Part1/"><i class="fa fa-newspaper-o"></i>Read All</a>
+                </div>
+                <hr>
+              </li>
+            
+              <li>
+                <h2>
+                  <a class="post-link" href="/2017/06/10/Implicits-And-Typeclasses-in-scala/">Implicits and Type Classes</a>
+                </h2>
+                <div class="label">
+                    <div class="label-card">
+                        <i class="fa fa-calendar"></i>2017-06-10
+                    </div>
+                    <div class="label-card">
+                        <i class="fa fa-user"></i>Toney Thomas
+                        
+                    </div>
+                    <div class="label-card">
+                        
+                    </div>
+
+                    <div class="label-card">
+                    
+
+
+<!-- <span class="point">•</span> -->
+<span class="categories">
+  <i class="fa fa-th-list"></i>
+  
+    
+        <a href="/category/#Scala" title="Category: Scala" rel="category">Scala</a>
+    
+  
+
+  <!-- <span class="point">•</span> -->
+</span>
+
+
+                    </div>
+
+                    <div class="label-card">
+                    
+<!-- <span class="point">•</span> -->
+<span class="pageTag">
+  <i class="fa fa-tags"></i>
+  
+    
+        <a href="/tag/#Scala" title="Tag: Scala" rel="tag">Scala</a>
+    
+  
+
+</span>
+
+                    </div>
+                </div>
+                <div class="excerpt">
+                    <ul id="markdown-toc">
+  <li><a href="#implicits-and-type-classes" id="markdown-toc-implicits-and-type-classes">Implicits and Type Classes</a></li>
+</ul>
+
+<h1 id="implicits-and-type-classes">Implicits and Type Classes</h1>
+
+
+                </div>
+                <div class="read-all">
+                    <a  href="/2017/06/10/Implicits-And-Typeclasses-in-scala/"><i class="fa fa-newspaper-o"></i>Read All</a>
+                </div>
+                <hr>
+              </li>
+            
+              <li>
+                <h2>
+                  <a class="post-link" href="/2017/05/28/CCA175-Cloudera-Spark-Hadoop-part1/">CCA 175 - Cloudera Spark & Hadoop Certification - Part 1</a>
+                </h2>
+                <div class="label">
+                    <div class="label-card">
+                        <i class="fa fa-calendar"></i>2017-05-28
+                    </div>
+                    <div class="label-card">
+                        <i class="fa fa-user"></i>Toney Thomas
+                        
+                    </div>
+                    <div class="label-card">
+                        
+                    </div>
+
+                    <div class="label-card">
+                    
+
+
+<!-- <span class="point">•</span> -->
+<span class="categories">
+  <i class="fa fa-th-list"></i>
+  
+    
+        <a href="/category/#Spark," title="Category: Spark," rel="category">Spark,</a>&nbsp;
+    
+        <a href="/category/#Cloudera," title="Category: Cloudera," rel="category">Cloudera,</a>&nbsp;
+    
+        <a href="/category/#Hadoop" title="Category: Hadoop" rel="category">Hadoop</a>
+    
+  
+
+  <!-- <span class="point">•</span> -->
+</span>
+
+
+                    </div>
+
+                    <div class="label-card">
+                    
+<!-- <span class="point">•</span> -->
+<span class="pageTag">
+  <i class="fa fa-tags"></i>
+  
+    
+        <a href="/tag/#Spark," title="Tag: Spark," rel="tag">Spark,</a>&nbsp;
+    
+        <a href="/tag/#Scala," title="Tag: Scala," rel="tag">Scala,</a>&nbsp;
+    
+        <a href="/tag/#Hadoop," title="Tag: Hadoop," rel="tag">Hadoop,</a>&nbsp;
+    
+        <a href="/tag/#Certification" title="Tag: Certification" rel="tag">Certification</a>
+    
+  
+
+</span>
+
+                    </div>
+                </div>
+                <div class="excerpt">
+                    <ul id="markdown-toc">
+  <li><a href="#part-1---the-road-map" id="markdown-toc-part-1---the-road-map">Part 1 - The Road Map</a></li>
+  <li><a href="#useful-links" id="markdown-toc-useful-links">Useful Links</a></li>
+</ul>
+
+<h1 id="part-1---the-road-map">Part 1 - The Road Map</h1>
+
+<ul>
+  <li>
+    <p>Should be able to import Tables from MySQL Databases. 
+  Code Snippets : https://github.com/dgadiraju/code/tree/master/hadoop/edw/cloudera/sqoop
+  <a href="https://www.youtube.com/watch?v=C7YEYvlFncU&amp;index=10&amp;list=PLf0swTFhTI8rJvGpOp-LujOcpk-Rlz-yE">Itversity YouTube Channel</a></p>
+
+    <p>https://www.cloudera.com/developers/get-started-with-hadoop-tutorial/exercise-1.html</p>
+
+    <p>Boundary Query</p>
+  </li>
+</ul>
+
+<h1 id="useful-links">Useful Links</h1>
+
+<ul>
+  <li></li>
+  <li></li>
+</ul>
+
+
+                </div>
+                <div class="read-all">
+                    <a  href="/2017/05/28/CCA175-Cloudera-Spark-Hadoop-part1/"><i class="fa fa-newspaper-o"></i>Read All</a>
+                </div>
+                <hr>
+              </li>
+            
+              <li>
+                <h2>
+                  <a class="post-link" href="/2017/05/27/spark-architecture-part2/">Spark Architecture : Part 2 - Let's set the ball rolling</a>
+                </h2>
+                <div class="label">
+                    <div class="label-card">
+                        <i class="fa fa-calendar"></i>2017-05-27
+                    </div>
+                    <div class="label-card">
+                        <i class="fa fa-user"></i>Toney Thomas
+                        
+                    </div>
+                    <div class="label-card">
+                        
+                    </div>
+
+                    <div class="label-card">
+                    
+
+
+<!-- <span class="point">•</span> -->
+<span class="categories">
+  <i class="fa fa-th-list"></i>
+  
+    
+        <a href="/category/#Spark" title="Category: Spark" rel="category">Spark</a>
+    
+  
+
+  <!-- <span class="point">•</span> -->
+</span>
+
+
+                    </div>
+
+                    <div class="label-card">
+                    
+<!-- <span class="point">•</span> -->
+<span class="pageTag">
+  <i class="fa fa-tags"></i>
+  
+    
+        <a href="/tag/#Spark," title="Tag: Spark," rel="tag">Spark,</a>&nbsp;
+    
+        <a href="/tag/#Scala" title="Tag: Scala" rel="tag">Scala</a>
+    
+  
+
+</span>
+
+                    </div>
+                </div>
+                <div class="excerpt">
+                    <ul id="markdown-toc">
+  <li><a href="#baby-step-1--prepare-your-executable" id="markdown-toc-baby-step-1--prepare-your-executable">Baby Step 1 : Prepare your executable</a></li>
+</ul>
+
+<p>Please note that this is a continuation from <a href="https://dreamlabs4u.github.io/2017/05/27/spark-architecture-part1/">Spark Architecture : Part 1 - Making sure that the basement is right!</a></p>
+
+<h2 id="baby-step-1--prepare-your-executable">Baby Step 1 : Prepare your executable</h2>
+
+<p>Now that we have the cluster (with HDFS Layer, Node Manger and Resource Manager) in place we will name this state as ‘Dot1’. Keeping this aside,
+now we will switch our context back to the WordCount Program we have already written and tested <a href="https://github.com/dreamlabs4u/SparkInsights/blob/master/src/main/scala/com/study/spark/WordCountSimple.scala">WordCount - Spark</a>
+Our aim is to run this WordCount Program in Spark Cluster and see how it interacts with different components and dissect each components to 
+see what exactly is happening under the hood to define rest of the components in the Architecture.</p>
+
+<div class="language-scala highlighter-rouge"><pre class="highlight"><code><span class="c1">// RDD 1
+</span>    <span class="k">val</span> <span class="n">inputRDD</span> <span class="k">=</span> <span class="n">sc</span><span class="o">.</span><span class="n">textFile</span><span class="o">(</span><span class="n">inputPath</span><span class="o">)</span>
+
+    <span class="c1">// RDD2
+</span>    <span class="k">val</span> <span class="n">wordsRDD</span> <span class="k">=</span> <span class="n">inputRDD</span><span class="o">.</span><span class="n">flatMap</span><span class="o">(</span><span class="k">_</span><span class="o">.</span><span class="n">split</span><span class="o">(</span><span class="s">"\\s+"</span><span class="o">))</span> <span class="c1">// split words
+</span>
+    <span class="c1">// RDD 3
+</span>    <span class="k">val</span> <span class="n">tuplesRDD</span> <span class="k">=</span> <span class="n">wordsRDD</span><span class="o">.</span><span class="n">map</span><span class="o">(</span><span class="n">w</span> <span class="k">=&gt;</span> <span class="o">(</span><span class="n">w</span><span class="o">,</span> <span class="mi">1</span><span class="o">))</span>
+
+    <span class="c1">// RDD 4
+</span>    <span class="k">val</span> <span class="n">reducedRDD</span> <span class="k">=</span> <span class="n">tuplesRDD</span><span class="o">.</span><span class="n">reduceByKey</span><span class="o">(</span><span class="k">_</span> <span class="o">+</span> <span class="k">_</span><span class="o">)</span>
+
+    <span class="c1">// Action
+</span>    <span class="n">reducedRDD</span><span class="o">.</span><span class="n">saveAsTextFile</span><span class="o">(</span><span class="n">outputPath</span><span class="o">)</span>
+</code></pre>
+</div>
+
+<p>So the core of the WordCount Program is shown above and we are ready with the executable. In the cluster, we have already identified a physical
+machine as the Edge Node(Assume that we have already installed the Spark Cluster and all the Spark Binaries are available in the Edge Node). When we
+submit the Job, the execution flows through the following steps.</p>
+
+<p><img src="/images/DriverProgramOps.png" alt="Driver Program Responsibilities" /></p>
+
+<ol>
+  <li>Spark Will identify what is the List of RDDs in the program and the lineage between them. When any action(<a href="">Actions &amp; Transformation</a>) is called on the RDD,
+spark creates the DAG(Directed Ascylic Graph) and sends it to the DAG Scheduler.</li>
+  <li>
+    <p>The DAG Scheduler splits the operations into different stages. As we already discussed there are mainly two types of operations that result in RDD - i.e Transformations
+and action among this there can be two types of Transformations one is narrow transformation and the other one is wide transformation(involves shuffling - i.e network transfer). 
+The wide transformation determines the stage boundaries(i.e it is a trigger for next stage; Eg: reduceByKey, groupBy etc). So our WordCount program, RDD4 defines the 
+boundary and all the operations in RDD1, RDD2 and RDD3 can go in single stage and the operations can be coupled together and parallelised. RDD4, RDD5 groups together 
+to form the Stage 2.</p>
+
+    <p><img src="/images/DAG.png" alt="DAG of WordCount" /></p>
+  </li>
+  <li>
+    <p>Once the DAG is generated, each stages will be send as an input to the Task Scheduler to generate the physical execution plan. The number of physical tasks 
+spawned depends on the number of partitions generated out of the file (Based on Block size). For instance, in our case say if we are processing 1.5 GB 
+data then the number of tasks spawned will be 1.5 GB / 128 MB = 12. Now the question is how these tasks are shared to get the work done. That is 
+where the Worker Node comes into the picture. Ok, now that I have 12 tasks to process and assume that spark(by default) spawned two Executors to
+to get the work done. Let’s assume that the 2 executors spawned are having the configuration of 512 MB (Container Memory) and 1 V-Core and we have 12 
+Tasks to complete. It is very obvious that the all of the 12 tasks can be processed at once because the core will only function in a time sharing manner and at most 
+2 tasks can be executed in parallel. So task1 will be allotted to the Executor of the node 1 (Depends on the data locality) and the task 2 will be
+allotted to the next. Depending up on whoever completes the task first will get the subsequent task allocated and once all the 12 Tasks are done in this fashion, 
+the Stage 1 will be completed.</p>
+
+    <p><img src="/images/EventsStage1.png" alt="DAG of WordCount" /></p>
+
+    <p>The Stage 2 (Starts with the shuffled dataset) will always have the same number of tasks as that of the stage 1(unless and otherwise if you repartition the RDD)</p>
+
+    <p><img src="/images/partitionStages.png" alt="Partitions Across Stages" /></p>
+
+    <p>The tasks of the Stage 2 will also get executed based on the Executor/Core availability and the final data will be written on to the target file.</p>
+
+    <p><img src="/images/EventStage2.png" alt="Stage 2 Events" /></p>
+
+    <p>One interesting thing to notice over here is that the Mapper and Reducer Phases ran on the Same Node and they are re-using the Executor JVM for the 
+processing and this is one of the main reason why Spark is so Powerful (Yes, the Caching Mechanism to store the data in RAM is also there). There are
+more things coming up on the Memory Management and Executor Memory Turning on <a href="">Part 3 - One More Baby Step : Executor Memory Management and Tuning</a></p>
+  </li>
+</ol>
+
+
+                </div>
+                <div class="read-all">
+                    <a  href="/2017/05/27/spark-architecture-part2/"><i class="fa fa-newspaper-o"></i>Read All</a>
+                </div>
+                <hr>
+              </li>
+            
+              <li>
+                <h2>
+                  <a class="post-link" href="/2017/05/27/spark-architecture-part1/">Spark Architecture : Part 1 - Making sure that the basement is right!</a>
+                </h2>
+                <div class="label">
+                    <div class="label-card">
+                        <i class="fa fa-calendar"></i>2017-05-27
+                    </div>
+                    <div class="label-card">
+                        <i class="fa fa-user"></i>Toney Thomas
+                        
+                    </div>
+                    <div class="label-card">
+                        
+                    </div>
+
+                    <div class="label-card">
+                    
+
+
+<!-- <span class="point">•</span> -->
+<span class="categories">
+  <i class="fa fa-th-list"></i>
+  
+    
+        <a href="/category/#Spark" title="Category: Spark" rel="category">Spark</a>
+    
+  
+
+  <!-- <span class="point">•</span> -->
+</span>
+
+
+                    </div>
+
+                    <div class="label-card">
+                    
+<!-- <span class="point">•</span> -->
+<span class="pageTag">
+  <i class="fa fa-tags"></i>
+  
+    
+        <a href="/tag/#Spark," title="Tag: Spark," rel="tag">Spark,</a>&nbsp;
+    
+        <a href="/tag/#Scala" title="Tag: Scala" rel="tag">Scala</a>
+    
+  
+
+</span>
+
+                    </div>
+                </div>
+                <div class="excerpt">
+                    <ul id="markdown-toc">
+  <li><a href="#the-basics-quick-glance-through-what-we-already-know" id="markdown-toc-the-basics-quick-glance-through-what-we-already-know"><em>The basics (Quick glance through what we already know)</em></a></li>
+  <li><a href="#connecting-the-dots" id="markdown-toc-connecting-the-dots">Connecting the Dots</a></li>
+  <li><a href="#connecting-the-dots---the-capacity-of-our-cluster" id="markdown-toc-connecting-the-dots---the-capacity-of-our-cluster">Connecting the Dots - The Capacity of our Cluster!</a></li>
+</ul>
+
+<p>When I wanted to learn about Spark and its Architecture, to get it from horses mouth, I went directly to the Apache Spark homepage
+<a href="http://spark.apache.org/docs/latest/cluster-overview.html">Spark Architecture</a>. Not surprisingly, I was presented with a neat Architecture diagram and a collection of 
+jargons to start with - Cluster manager, Driver Program, Spark Context, Worker node, Executor, Task, Job, Stage.</p>
+
+<p><img src="/images/clusteroverview.png" alt="Architecture" /></p>
+
+<p>Since I have been working with Big Data Technologies for quite some time, I was able to map the things on a high level. Not recently, I 
+started imbibing a pattern of learning in which I mark something as learned if and only if I am successful in making another person understand 
+that concept in the most simple terms. So sticking on to that thumb rule and to force the zen pattern, I am trying to to explain the Architecture
+from a different(more practical) point of view(I presume you have basic understanding of Hadoop and MapReduce).</p>
+
+<h2 id="the-basics-quick-glance-through-what-we-already-know"><em>The basics (Quick glance through what we already know)</em></h2>
+
+<p>We all know that the Spark Architecture sits on top of the Hadoop Platform. So, the simple layman question - What is a Hadoop cluster and why do we need it ?</p>
+<div class="highlighter-rouge"><pre class="highlight"><code>As per Wiki - Apache Hadoop is an open-source software framework used for distributed storage and processing of dataset of big data using the MapReduce programming model.
+</code></pre>
+</div>
+
+<p>To understand the need and evolution of Hadoop-MapReduce, I suggest you to go through the below write up :-</p>
+
+<p><a href="https://github.com/vineethMM/spark-examples/blob/master/README.md">Evolution of Hadoop and MapReduce</a></p>
+
+<p><em>P.S : - More to Come on this introduction part.</em></p>
+
+<h2 id="connecting-the-dots">Connecting the Dots</h2>
+
+<p>Ok, Let’s try to see the whole architecture from a different perspective. We all know that the Hadoop cluster is “made” using the commodity Hardwares 
+and let’s assume that we have 5 Physical machines each of them is having a basic configuration (16GB RAM, 1 TB HDD, and 8 Core Processors).</p>
+
+<p><img src="/images/Machines.png" alt="Hypothesis" /></p>
+
+<p>Ta-da, we have got the physical machines in place and we now need to do is to setup a Spark Cluster using these machines. To separate the concerns, we 
+will be sticking on to the official Spark Architecture (Documentation) and try to illustrate how the following components are form part of the Architecture.</p>
+
+<ul>
+  <li><em>Main Components - Hypothesis</em>
+    <ul>
+      <li>Driver Program :- This should be the user logic and configuration, eh?</li>
+      <li>Cluster Manager :- This should be something which manages the Cluster (Hmm, resources and flow ? )</li>
+      <li>Worker Node :- This should be something which does the actual work ?</li>
+    </ul>
+  </li>
+</ul>
+
+<p>We will try to give a formal definition and the responsibilities of each of these components in a while. Since we are building a Hadoop Spark Cluster, we should 
+have a Distributed Storage layer built first by connecting all these machines to store the large volumes of data. So in the cluster we are going to build, 
+we will make the Machine 1 as the Edge Node (A single point of access from where an end-user can perform anything on the cluster) and only 3 out of the 4 remaining
+machines(Machine 2, 3 &amp; 4) will only be used to store the data in the cluster and thus form the storage layer (3 * 1 TB = ~3 TB). If you closely observe the different  <br />
+components in Hadoop Eco-system, almost everything work in a Master-Slave architecture. A master who controls and co-ordinates the actions and the slaves who perform 
+those actions. In the case of Distributed Storage, the master is called NameNode and the slaves are called DataNodes. So if you try to point them back to our simple 
+cluster NameNode is a process running on the Machine 5 and DataNodes are individual processes running on Machine 2,3 &amp; 4. Similarly, for managing the task allocation
+and resources, the Resource Manager(Master) will be running on Machine 5 and individual Node Managers(slaves) will be running on each of the Machines 2, 3 &amp; 4.</p>
+
+<p><img src="/images/ClusterInitial.png" alt="Cluster Initial Build" /></p>
+
+<h2 id="connecting-the-dots---the-capacity-of-our-cluster">Connecting the Dots - The Capacity of our Cluster!</h2>
+
+<p>Now that we have a storage layer to layer to store our ‘Big Data’, there should be some mechanism to do the computation/processing. If we do a quick peek into the Spark Architecture(Yes, I am 
+still following the bottom up method to explain things :D ), we can see Components named <em>Executor</em> with individual Task and Cache. Yes, these are the Heros which gets the work done. We 
+can treat each Executor as individual container with its own Processor and Memory(Virtual Cores - Will be explained in a separate thread - <a href="">Spark Memory Management</a> - Ideally the V-Cores are equal to the number of physical
+cores available in each Node). So if we do the math, Each of our Worker Node makes the following contributions to the total capacity of the Cluster.</p>
+
+<table>
+  <tbody>
+    <tr>
+      <td>*</td>
+      <td>Attribute</td>
+      <td>Value</td>
+      <td>How</td>
+    </tr>
+    <tr>
+      <td>1</td>
+      <td>Storage</td>
+      <td>1 GB</td>
+      <td>It is the HDD available to Store Data</td>
+    </tr>
+    <tr>
+      <td>2</td>
+      <td>V - Cores</td>
+      <td>5 Cores</td>
+      <td>Leaving 1 Core for NM, 1 Core for DN and 1 Core for OS</td>
+    </tr>
+    <tr>
+      <td>3</td>
+      <td>Memory</td>
+      <td>10 GB</td>
+      <td>Leaving 4 GB for OS, NM and DN</td>
+    </tr>
+    <tr>
+      <td>*</td>
+      <td>Total</td>
+      <td>3 TB HDD + 15 V-Cores + 30 GB</td>
+      <td>Adding the resources from each of the nodes</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>To summarize, the Node Managers will share the Memory and V-Core information to the Resource Managers and the DataNodes will share the Disk space 
+statistics with the NameNodes during their startup. The cumulative information will actually provide the overall capacity of the cluster.</p>
+
+<p>P.S: There are more to this like pluggable Capacity Scheduler and the Algorithm for Calculating the resource availability (Default Resource Calculator and 
+DominantResource Calculator using Dominant Resource Fairness ) - We will talk about this in a separate thread <a href="">Resource Scheduling</a></p>
+
+<p>The continuation of this discussion will happen in the next Post <a href="https://dreamlabs4u.github.io/2017/05/27/spark-architecture-part2/">Spark Architecture : Part 2 - Let’s set the ball rolling</a></p>
+
+
+                </div>
+                <div class="read-all">
+                    <a  href="/2017/05/27/spark-architecture-part1/"><i class="fa fa-newspaper-o"></i>Read All</a>
+                </div>
+                <hr>
+              </li>
             
               <li>
                 <h2>
@@ -200,6 +816,8 @@
 
 <h1 id="monad">Monad</h1>
 
+<p>P.S: Just Rough Notes - WIP - Will have to Develop to a readable content :)</p>
+
 <p>Monad, M[T], is an amplification (or considered as a wrapper) of a generic type T such that</p>
 
 <ol>
@@ -255,73 +873,6 @@ if you applying a composition function to the origial value.</p>
                 <hr>
               </li>
             
-              <li>
-                <h2>
-                  <a class="post-link" href="/2017/05/19/a-reborn-child/">A reborn child!</a>
-                </h2>
-                <div class="label">
-                    <div class="label-card">
-                        <i class="fa fa-calendar"></i>2017-05-19
-                    </div>
-                    <div class="label-card">
-                        <i class="fa fa-user"></i>Toney
-                        
-                    </div>
-                    <div class="label-card">
-                        
-                    </div>
-
-                    <div class="label-card">
-                    
-
-
-<!-- <span class="point">•</span> -->
-<span class="categories">
-  <i class="fa fa-th-list"></i>
-  
-    
-        <a href="/category/#Philosophy" title="Category: Philosophy" rel="category">Philosophy</a>
-    
-  
-
-  <!-- <span class="point">•</span> -->
-</span>
-
-
-                    </div>
-
-                    <div class="label-card">
-                    
-<!-- <span class="point">•</span> -->
-<span class="pageTag">
-  <i class="fa fa-tags"></i>
-  
-    
-        <a href="/tag/#Philosophy" title="Tag: Philosophy" rel="tag">Philosophy</a>
-    
-  
-
-</span>
-
-                    </div>
-                </div>
-                <div class="excerpt">
-                    
-<p>Leave behind what was ‘you’ and be born again!</p>
-
-<div class="language-scala highlighter-rouge"><pre class="highlight"><code><span class="k">def</span> <span class="n">helloWorld</span><span class="o">()</span>
-  <span class="n">println</span><span class="o">(</span><span class="s">"Hello World!"</span><span class="o">)</span>
-</code></pre>
-</div>
-
-
-                </div>
-                <div class="read-all">
-                    <a  href="/2017/05/19/a-reborn-child/"><i class="fa fa-newspaper-o"></i>Read All</a>
-                </div>
-                <hr>
-              </li>
-            
         </ul>
 
 
@@ -332,10 +883,10 @@ if you applying a composition function to the origial value.</p>
             <span class="previous disable"><i class="fa fa-angle-double-left"></i></span>
             <span class="previous disable"><i class="fa fa-angle-left"></i></span>
           
-          <span class="page_number ">1/1</span>
+          <span class="page_number ">1/2</span>
           
-            <span class="next disable"><i class="fa fa-angle-right"></i></span>
-            <span class="next disable"><i class="fa fa-angle-double-right"></i></span>
+            <a href="/page2" class="next"><i class="fa fa-angle-right"></i></a>
+            <a href="/page2" class="next"><i class="fa fa-angle-double-right"></i></a>
           
         </div>
     </div>
@@ -348,6 +899,16 @@ if you applying a composition function to the origial value.</p>
                     Recent Posts
                 </div>
                 <ul class="content-ul" recent>
+                    
+                        <li><a href="/2017/06/16/A-Humble-attempt-to-Understand-Streaming-Part1/">A Humble attempt to Understand Streaming Data and the way we process it!</a></li>
+                    
+                        <li><a href="/2017/06/10/Implicits-And-Typeclasses-in-scala/">Implicits and Type Classes</a></li>
+                    
+                        <li><a href="/2017/05/28/CCA175-Cloudera-Spark-Hadoop-part1/">CCA 175 - Cloudera Spark & Hadoop Certification - Part 1</a></li>
+                    
+                        <li><a href="/2017/05/27/spark-architecture-part2/">Spark Architecture : Part 2 - Let's set the ball rolling</a></li>
+                    
+                        <li><a href="/2017/05/27/spark-architecture-part1/">Spark Architecture : Part 1 - Making sure that the basement is right!</a></li>
                     
                         <li><a href="/2017/05/19/monad-explained/">Monad Explained! - The Scala way</a></li>
                     
@@ -378,13 +939,48 @@ if you applying a composition function to the origial value.</p>
                             <span class="name">
                                 Scala
                             </span>
+                            <span class="badge">3</span>
+                        </a>
+                    </li>
+                    
+                    <li>
+                        <a href="/category/#Spark" class="categories-list-item" cate="Spark">
+                            <span class="name">
+                                Spark
+                            </span>
+                            <span class="badge">2</span>
+                        </a>
+                    </li>
+                    
+                    <li>
+                        <a href="/category/#Spark," class="categories-list-item" cate="Spark,">
+                            <span class="name">
+                                Spark,
+                            </span>
+                            <span class="badge">1</span>
+                        </a>
+                    </li>
+                    
+                    <li>
+                        <a href="/category/#Cloudera," class="categories-list-item" cate="Cloudera,">
+                            <span class="name">
+                                Cloudera,
+                            </span>
+                            <span class="badge">1</span>
+                        </a>
+                    </li>
+                    
+                    <li>
+                        <a href="/category/#Hadoop" class="categories-list-item" cate="Hadoop">
+                            <span class="name">
+                                Hadoop
+                            </span>
                             <span class="badge">1</span>
                         </a>
                     </li>
                     
                 </ul>
             </div>
-            <!-- 其他div框放到这里 -->
             <div class="side">
                 <div>
                     <i class="fa fa-tags"></i>
@@ -411,7 +1007,42 @@ if you applying a composition function to the origial value.</p>
                       
                       
                       
-                      <a href="/tag/#Scala" style="font-size: 9pt; color: #999;">Scala</a>
+                      <a href="/tag/#Scala" style="font-size: 18pt; color: #000;">Scala</a>
+                    
+                      
+                      
+                      
+                      
+                      
+                      <a href="/tag/#Spark," style="font-size: 18pt; color: #000;">Spark,</a>
+                    
+                      
+                      
+                      
+                      
+                      
+                      <a href="/tag/#Scala," style="font-size: 12pt; color: #666;">Scala,</a>
+                    
+                      
+                      
+                      
+                      
+                      
+                      <a href="/tag/#Hadoop," style="font-size: 9pt; color: #999;">Hadoop,</a>
+                    
+                      
+                      
+                      
+                      
+                      
+                      <a href="/tag/#Certification" style="font-size: 9pt; color: #999;">Certification</a>
+                    
+                      
+                      
+                      
+                      
+                      
+                      <a href="/tag/#Spark-Streaming" style="font-size: 9pt; color: #999;">Spark-Streaming</a>
                     
                 </div>
             </div>
@@ -438,20 +1069,15 @@ if you applying a composition function to the origial value.</p>
     <div class="wrapper">
 
         <p class="description">
-             本站记录我前端之旅的沿途风景！ 
+            
         </p>
         <p class="contact">
             Contact me at: 
-            <a href="https://github.com/Gaohaoyang" title="GitHub"><i class="fa fa-github" aria-hidden="true"></i></a>  
-            <a href="mailto:gaohaoyang126@126.com" title="email"><i class="fa fa-envelope-o" aria-hidden="true"></i></a>  
-            <a href="http://weibo.com/3115521wh" title="Weibo"><i class="fa fa-weibo" aria-hidden="true"></i></a>  
-            <a href="https://www.zhihu.com/people/gaohaoyang" title="Zhihu"><i class="iconfont icon-daoruzhihu"></i></a>  
-            <a href="https://twitter.com/gaohaoyang126" title="Twitter"><i class="fa fa-twitter" aria-hidden="true"></i></a>  
-            <a href="https://www.facebook.com/gaohaoyang.water" title="Facebook"><i class="fa fa-facebook-official" aria-hidden="true"></i></a>   
-            <a href="https://www.linkedin.com/in/gaohaoyang" title="LinkedIn"><i class="fa fa-linkedin" aria-hidden="true"></i></a>  
-        </p>
-        <p>
-            本站总访问量<span id="busuanzi_value_site_pv"></span>次，本站访客数<span id="busuanzi_value_site_uv"></span>人次，本文总阅读量<span id="busuanzi_value_page_pv"></span>次
+            <a href="https://github.com/dreamlabs4u" title="GitHub"><i class="fa fa-github" aria-hidden="true"></i></a>  
+            <a href="mailto:dreamlabs4u@gmail.com" title="email"><i class="fa fa-envelope-o" aria-hidden="true"></i></a>    
+            <a href="https://twitter.com/dreamlabs4u" title="Twitter"><i class="fa fa-twitter" aria-hidden="true"></i></a>  
+            <a href="https://www.facebook.com/dreamlabs4u" title="Facebook"><i class="fa fa-facebook-official" aria-hidden="true"></i></a>   
+            <a href="https://www.linkedin.com/in/dreamlabs4u" title="LinkedIn"><i class="fa fa-linkedin" aria-hidden="true"></i></a>  
         </p>
         <p class="power">
             <span>

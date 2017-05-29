@@ -5,9 +5,421 @@
     <description></description>
     <link>http://localhost:4000/</link>
     <atom:link href="http://localhost:4000/feed.xml" rel="self" type="application/rss+xml"/>
-    <pubDate>Fri, 19 May 2017 07:29:17 +1000</pubDate>
-    <lastBuildDate>Fri, 19 May 2017 07:29:17 +1000</lastBuildDate>
+    <pubDate>Tue, 20 Jun 2017 10:46:30 +1000</pubDate>
+    <lastBuildDate>Tue, 20 Jun 2017 10:46:30 +1000</lastBuildDate>
     <generator>Jekyll v3.4.3</generator>
+    
+      <item>
+        <title>A Humble attempt to Understand Streaming Data and the way we process it!</title>
+        <description>&lt;ul id=&quot;markdown-toc&quot;&gt;
+  &lt;li&gt;&lt;a href=&quot;#batch-data-vs-streaming-data-&quot; id=&quot;markdown-toc-batch-data-vs-streaming-data-&quot;&gt;Batch Data Vs Streaming Data …&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;#indefinite-flow-of-data-&quot; id=&quot;markdown-toc-indefinite-flow-of-data-&quot;&gt;Indefinite flow of data …&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;#process_pattern_1--process-data-as-and-when-it-is-available&quot; id=&quot;markdown-toc-process_pattern_1--process-data-as-and-when-it-is-available&quot;&gt;&lt;em&gt;#Process_Pattern_1&lt;/em&gt; : Process data as and when it is available.&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+Recently my friend has asked me, “Dude, it’s been quite some time that you have been working on Big Data and related software 
+stacks. I have a simple problem and could you please educate me on these jargons and provide a suitable solution ? “
+
+The inherent repulsive behaviour in me have put me in a defensive mode but I somehow mustered enough courage to hear the problem statement out and 
+it goes like this :-
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&quot;Let's assume that you have a stream of data flowing in and I want to put the data into different buckets by aligning with the following rules :-
+
+    1. The records in a given bucket shouldn't be duplicates 
+    2. All the incoming data should be emitted out i.e the collection of data in different buckets will be the same as incoming data. 
+    
+Once, the data is arranged in different buckets, we should be able to call a Sink. Let's assume this as an HTTP API Service / HDFS output location.     
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+Whenever I am encountered with a problem, I will try to picturise the statement in my mind (I assume our brain has some ‘magical’ power
+to process and give out results when we lift problem statements into diagrams with box and connectors :) ) and that goes like this :-
+
+&lt;img src=&quot;/images/sparkstreaming_ps1.png&quot; alt=&quot;Problem Statement&quot; /&gt;
+
+Ok, we are successful in plotting the problem statements using box and connectors. But, I already find myself bombarded with lot of 
+questions which I am not certain about.
+
+&lt;ol&gt;
+  &lt;li&gt;&lt;em&gt;What is a streaming data ?&lt;/em&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;em&gt;What is the best mechanism to ingest it.&lt;/em&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;em&gt;Even if I find a mechanism to ingest the data how much of the incoming data will can be processed at a time ?&lt;/em&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;em&gt;What all things can be done with the streaming dataset and methods available for sink ?&lt;/em&gt;&lt;/li&gt;
+&lt;/ol&gt;
+
+We will try to answer each of these questions at different points in the journey.
+
+As we all do, my immediate reflex was to google on these jargons and without much hassle I was able to come up with the 
+following conclusions.
+
+&lt;h2 id=&quot;batch-data-vs-streaming-data-&quot;&gt;Batch Data Vs Streaming Data …&lt;/h2&gt;
+
+In real world data is generated majorly in two ways, end result of a statistical analysis or by the end result of an event. Lets say,
+if I am periodically checking the account balances of customers in a bank or memory usage in a computer and records it as a dataset then 
+it can be fairly be categorised as dataset derived out of statistical analysis. There is another class of dataset generated out of instances like
+data generated out of sensors, security systems, medical devices based on events happening at their habitat. We couldn’t simply predict the occurrence interval of those
+data. For instance, lets treat the webserver logs as a dataset and the data will be continuously generated whenever someone accesses any of the
+websites hosted on that server. This continuous flow of events can be called as streaming dataset. In a typical Big Data Environment, the need 
+for performing real-time stream processing is rapidly increasing and below is some witty but striking example to reason the statement.
+
+&lt;img src=&quot;/images/streamvsbatch.png&quot; alt=&quot;Strem Vs Batch&quot; /&gt;
+
+&lt;h2 id=&quot;indefinite-flow-of-data-&quot;&gt;Indefinite flow of data …&lt;/h2&gt;
+
+Now that we know the difference between the Batch Data and Streaming data processing, the very first concern that would come to our mind is its
+behaviour - the indefinite flow of incoming data. We should have a mechanism to make sure that all the incoming data is processed as and when it 
+is available. In layman terms, I can think of couple of ways to handle this scenario
+
+&lt;ol&gt;
+  &lt;li&gt;Have a processing layer capable of processing the data as and when it is available. - &lt;em&gt;#Process_Pattern_1&lt;/em&gt;&lt;/li&gt;
+  &lt;li&gt;Have a queueing system in place to hold the incoming data and let the processing layer source the data from there and process. &lt;em&gt;#Process_Pattern_2&lt;/em&gt;&lt;/li&gt;
+&lt;/ol&gt;
+
+On further research, I narrowed down my options for the Processing Layer. We can either use Spark Streaming / Storm as a processing layer and 
+and Kafka / Flume as queuing system to control the flow of incoming data before it is served for processing.
+
+&lt;img src=&quot;/images/SparkStreamingDiag.png&quot; alt=&quot;Spark Streaming Architecture&quot; /&gt;
+
+But, in this post we will be concentrating only on the Spark Streaming + Kafka Integration to implement the solution to the problem we had started with.
+
+&lt;h2 id=&quot;process_pattern_1--process-data-as-and-when-it-is-available&quot;&gt;&lt;em&gt;#Process_Pattern_1&lt;/em&gt; : Process data as and when it is available.&lt;/h2&gt;
+
+Before coming into a solution, we will try to get a basic understanding about the Processing Layer (Spark Streaming) using a simple 
+network word count application. Let’s assume that we have a netcat server as a source for streaming dataset and our aim is to compute the
+word count on the incoming data. In the case of batch mode word count, &lt;a href=&quot;&quot;&gt;Simple Word Count using Spark&lt;/a&gt;, we were reading in the source dataset,
+doing the RDD transformations and computes the word count on the whole dataset and finally the results were written on to the disk. In that 
+case the actual computation was done on the whole dataset. But, when it comes to the real time streaming, we do not know what can be the size 
+of the dataset and when should the computation on that defined dataset be emitted out. This is where the relevance of batch size comes into picture.
+
+&lt;div class=&quot;language-scala highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;    &lt;span class=&quot;c1&quot;&gt;// Create the context with a 1 second batch size
+&lt;/span&gt;    &lt;span class=&quot;k&quot;&gt;val&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;sparkConf&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;SparkConf&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;().&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;setMaster&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;args&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)).&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;setAppName&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;NetworkWordCount&quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;val&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;ssc&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;StreamingContext&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;sparkConf&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;Seconds&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;))&lt;/span&gt;
+    
+    &lt;span class=&quot;c1&quot;&gt;// Create a socket stream(ReceiverInputDStream) on target ip:port
+&lt;/span&gt;    &lt;span class=&quot;k&quot;&gt;val&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;lines&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;ssc&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;socketTextStream&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;args&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;),&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;args&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;2&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;).&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;toInt&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;StorageLevel&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nc&quot;&gt;MEMORY_AND_DISK_SER&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
+    
+    &lt;span class=&quot;c1&quot;&gt;// Split words by space to form DStream[String]
+&lt;/span&gt;    &lt;span class=&quot;k&quot;&gt;val&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;words&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;lines&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;flatMap&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;_&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;split&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot; &quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;))&lt;/span&gt;
+    
+    &lt;span class=&quot;c1&quot;&gt;// count the words to form DStream[(String, Int)]
+&lt;/span&gt;    &lt;span class=&quot;k&quot;&gt;val&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;wordCounts&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;words&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;map&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;x&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;=&amp;gt;&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;x&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)).&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;reduceByKey&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;_&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;+&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;_&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
+    
+    &lt;span class=&quot;c1&quot;&gt;// print the word count in the batch
+&lt;/span&gt;    &lt;span class=&quot;n&quot;&gt;wordCounts&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;print&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;()&lt;/span&gt;
+    
+    &lt;span class=&quot;n&quot;&gt;ssc&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;start&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;()&lt;/span&gt;
+    
+    &lt;span class=&quot;n&quot;&gt;ssc&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;awaitTermination&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;()&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+Internally, it works as follows. Spark Streaming receives live input data streams and divides the data into batches, which 
+are then processed by the Spark engine to generate the final stream of results in batches.
+
+The typical “word count” comes to the rescue. I will try to explain the
+</description>
+        <pubDate>Fri, 16 Jun 2017 00:00:00 +1000</pubDate>
+        <link>http://localhost:4000/2017/06/16/A-Humble-attempt-to-Understand-Streaming-Part1/</link>
+        <guid isPermaLink="true">http://localhost:4000/2017/06/16/A-Humble-attempt-to-Understand-Streaming-Part1/</guid>
+        
+        <category>Scala,</category>
+        
+        <category>Spark,</category>
+        
+        <category>Spark-Streaming</category>
+        
+        
+        <category>Scala</category>
+        
+      </item>
+    
+      <item>
+        <title>Implicits and Type Classes</title>
+        <description>&lt;ul id=&quot;markdown-toc&quot;&gt;
+  &lt;li&gt;&lt;a href=&quot;#implicits-and-type-classes&quot; id=&quot;markdown-toc-implicits-and-type-classes&quot;&gt;Implicits and Type Classes&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h1 id=&quot;implicits-and-type-classes&quot;&gt;Implicits and Type Classes&lt;/h1&gt;
+
+</description>
+        <pubDate>Sat, 10 Jun 2017 00:00:00 +1000</pubDate>
+        <link>http://localhost:4000/2017/06/10/Implicits-And-Typeclasses-in-scala/</link>
+        <guid isPermaLink="true">http://localhost:4000/2017/06/10/Implicits-And-Typeclasses-in-scala/</guid>
+        
+        <category>Scala</category>
+        
+        
+        <category>Scala</category>
+        
+      </item>
+    
+      <item>
+        <title>CCA 175 - Cloudera Spark &amp; Hadoop Certification - Part 1</title>
+        <description>&lt;ul id=&quot;markdown-toc&quot;&gt;
+  &lt;li&gt;&lt;a href=&quot;#part-1---the-road-map&quot; id=&quot;markdown-toc-part-1---the-road-map&quot;&gt;Part 1 - The Road Map&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;#useful-links&quot; id=&quot;markdown-toc-useful-links&quot;&gt;Useful Links&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h1 id=&quot;part-1---the-road-map&quot;&gt;Part 1 - The Road Map&lt;/h1&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;
+    Should be able to import Tables from MySQL Databases. 
+  Code Snippets : https://github.com/dgadiraju/code/tree/master/hadoop/edw/cloudera/sqoop
+  &lt;a href=&quot;https://www.youtube.com/watch?v=C7YEYvlFncU&amp;amp;index=10&amp;amp;list=PLf0swTFhTI8rJvGpOp-LujOcpk-Rlz-yE&quot;&gt;Itversity YouTube Channel&lt;/a&gt;
+
+    https://www.cloudera.com/developers/get-started-with-hadoop-tutorial/exercise-1.html
+
+    Boundary Query
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h1 id=&quot;useful-links&quot;&gt;Useful Links&lt;/h1&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+</description>
+        <pubDate>Sun, 28 May 2017 00:00:00 +1000</pubDate>
+        <link>http://localhost:4000/2017/05/28/CCA175-Cloudera-Spark-Hadoop-part1/</link>
+        <guid isPermaLink="true">http://localhost:4000/2017/05/28/CCA175-Cloudera-Spark-Hadoop-part1/</guid>
+        
+        <category>Spark,</category>
+        
+        <category>Scala,</category>
+        
+        <category>Hadoop,</category>
+        
+        <category>Certification</category>
+        
+        
+        <category>Spark,</category>
+        
+        <category>Cloudera,</category>
+        
+        <category>Hadoop</category>
+        
+      </item>
+    
+      <item>
+        <title>Spark Architecture : Part 2 - Let's set the ball rolling</title>
+        <description>&lt;ul id=&quot;markdown-toc&quot;&gt;
+  &lt;li&gt;&lt;a href=&quot;#baby-step-1--prepare-your-executable&quot; id=&quot;markdown-toc-baby-step-1--prepare-your-executable&quot;&gt;Baby Step 1 : Prepare your executable&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+Please note that this is a continuation from &lt;a href=&quot;https://dreamlabs4u.github.io/2017/05/27/spark-architecture-part1/&quot;&gt;Spark Architecture : Part 1 - Making sure that the basement is right!&lt;/a&gt;
+
+&lt;h2 id=&quot;baby-step-1--prepare-your-executable&quot;&gt;Baby Step 1 : Prepare your executable&lt;/h2&gt;
+
+Now that we have the cluster (with HDFS Layer, Node Manger and Resource Manager) in place we will name this state as ‘Dot1’. Keeping this aside,
+now we will switch our context back to the WordCount Program we have already written and tested &lt;a href=&quot;https://github.com/dreamlabs4u/SparkInsights/blob/master/src/main/scala/com/study/spark/WordCountSimple.scala&quot;&gt;WordCount - Spark&lt;/a&gt;
+Our aim is to run this WordCount Program in Spark Cluster and see how it interacts with different components and dissect each components to 
+see what exactly is happening under the hood to define rest of the components in the Architecture.
+
+&lt;div class=&quot;language-scala highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;c1&quot;&gt;// RDD 1
+&lt;/span&gt;    &lt;span class=&quot;k&quot;&gt;val&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;inputRDD&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;sc&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;textFile&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;inputPath&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
+
+    &lt;span class=&quot;c1&quot;&gt;// RDD2
+&lt;/span&gt;    &lt;span class=&quot;k&quot;&gt;val&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;wordsRDD&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;inputRDD&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;flatMap&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;_&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;split&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;\\s+&quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;))&lt;/span&gt; &lt;span class=&quot;c1&quot;&gt;// split words
+&lt;/span&gt;
+    &lt;span class=&quot;c1&quot;&gt;// RDD 3
+&lt;/span&gt;    &lt;span class=&quot;k&quot;&gt;val&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;tuplesRDD&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;wordsRDD&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;map&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;w&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;=&amp;gt;&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;w&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;))&lt;/span&gt;
+
+    &lt;span class=&quot;c1&quot;&gt;// RDD 4
+&lt;/span&gt;    &lt;span class=&quot;k&quot;&gt;val&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;reducedRDD&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;tuplesRDD&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;reduceByKey&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;_&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;+&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;_&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
+
+    &lt;span class=&quot;c1&quot;&gt;// Action
+&lt;/span&gt;    &lt;span class=&quot;n&quot;&gt;reducedRDD&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;saveAsTextFile&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;outputPath&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+So the core of the WordCount Program is shown above and we are ready with the executable. In the cluster, we have already identified a physical
+machine as the Edge Node(Assume that we have already installed the Spark Cluster and all the Spark Binaries are available in the Edge Node). When we
+submit the Job, the execution flows through the following steps.
+
+&lt;img src=&quot;/images/DriverProgramOps.png&quot; alt=&quot;Driver Program Responsibilities&quot; /&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;Spark Will identify what is the List of RDDs in the program and the lineage between them. When any action(&lt;a href=&quot;&quot;&gt;Actions &amp;amp; Transformation&lt;/a&gt;) is called on the RDD,
+spark creates the DAG(Directed Ascylic Graph) and sends it to the DAG Scheduler.&lt;/li&gt;
+  &lt;li&gt;
+    The DAG Scheduler splits the operations into different stages. As we already discussed there are mainly two types of operations that result in RDD - i.e Transformations
+and action among this there can be two types of Transformations one is narrow transformation and the other one is wide transformation(involves shuffling - i.e network transfer). 
+The wide transformation determines the stage boundaries(i.e it is a trigger for next stage; Eg: reduceByKey, groupBy etc). So our WordCount program, RDD4 defines the 
+boundary and all the operations in RDD1, RDD2 and RDD3 can go in single stage and the operations can be coupled together and parallelised. RDD4, RDD5 groups together 
+to form the Stage 2.
+
+    &lt;img src=&quot;/images/DAG.png&quot; alt=&quot;DAG of WordCount&quot; /&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    Once the DAG is generated, each stages will be send as an input to the Task Scheduler to generate the physical execution plan. The number of physical tasks 
+spawned depends on the number of partitions generated out of the file (Based on Block size). For instance, in our case say if we are processing 1.5 GB 
+data then the number of tasks spawned will be 1.5 GB / 128 MB = 12. Now the question is how these tasks are shared to get the work done. That is 
+where the Worker Node comes into the picture. Ok, now that I have 12 tasks to process and assume that spark(by default) spawned two Executors to
+to get the work done. Let’s assume that the 2 executors spawned are having the configuration of 512 MB (Container Memory) and 1 V-Core and we have 12 
+Tasks to complete. It is very obvious that the all of the 12 tasks can be processed at once because the core will only function in a time sharing manner and at most 
+2 tasks can be executed in parallel. So task1 will be allotted to the Executor of the node 1 (Depends on the data locality) and the task 2 will be
+allotted to the next. Depending up on whoever completes the task first will get the subsequent task allocated and once all the 12 Tasks are done in this fashion, 
+the Stage 1 will be completed.
+
+    &lt;img src=&quot;/images/EventsStage1.png&quot; alt=&quot;DAG of WordCount&quot; /&gt;
+
+    The Stage 2 (Starts with the shuffled dataset) will always have the same number of tasks as that of the stage 1(unless and otherwise if you repartition the RDD)
+
+    &lt;img src=&quot;/images/partitionStages.png&quot; alt=&quot;Partitions Across Stages&quot; /&gt;
+
+    The tasks of the Stage 2 will also get executed based on the Executor/Core availability and the final data will be written on to the target file.
+
+    &lt;img src=&quot;/images/EventStage2.png&quot; alt=&quot;Stage 2 Events&quot; /&gt;
+
+    One interesting thing to notice over here is that the Mapper and Reducer Phases ran on the Same Node and they are re-using the Executor JVM for the 
+processing and this is one of the main reason why Spark is so Powerful (Yes, the Caching Mechanism to store the data in RAM is also there). There are
+more things coming up on the Memory Management and Executor Memory Turning on &lt;a href=&quot;&quot;&gt;Part 3 - One More Baby Step : Executor Memory Management and Tuning&lt;/a&gt;
+  &lt;/li&gt;
+&lt;/ol&gt;
+
+</description>
+        <pubDate>Sat, 27 May 2017 00:00:00 +1000</pubDate>
+        <link>http://localhost:4000/2017/05/27/spark-architecture-part2/</link>
+        <guid isPermaLink="true">http://localhost:4000/2017/05/27/spark-architecture-part2/</guid>
+        
+        <category>Spark,</category>
+        
+        <category>Scala</category>
+        
+        
+        <category>Spark</category>
+        
+      </item>
+    
+      <item>
+        <title>Spark Architecture : Part 1 - Making sure that the basement is right!</title>
+        <description>&lt;ul id=&quot;markdown-toc&quot;&gt;
+  &lt;li&gt;&lt;a href=&quot;#the-basics-quick-glance-through-what-we-already-know&quot; id=&quot;markdown-toc-the-basics-quick-glance-through-what-we-already-know&quot;&gt;&lt;em&gt;The basics (Quick glance through what we already know)&lt;/em&gt;&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;#connecting-the-dots&quot; id=&quot;markdown-toc-connecting-the-dots&quot;&gt;Connecting the Dots&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;#connecting-the-dots---the-capacity-of-our-cluster&quot; id=&quot;markdown-toc-connecting-the-dots---the-capacity-of-our-cluster&quot;&gt;Connecting the Dots - The Capacity of our Cluster!&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+When I wanted to learn about Spark and its Architecture, to get it from horses mouth, I went directly to the Apache Spark homepage
+&lt;a href=&quot;http://spark.apache.org/docs/latest/cluster-overview.html&quot;&gt;Spark Architecture&lt;/a&gt;. Not surprisingly, I was presented with a neat Architecture diagram and a collection of 
+jargons to start with - Cluster manager, Driver Program, Spark Context, Worker node, Executor, Task, Job, Stage.
+
+&lt;img src=&quot;/images/clusteroverview.png&quot; alt=&quot;Architecture&quot; /&gt;
+
+Since I have been working with Big Data Technologies for quite some time, I was able to map the things on a high level. Not recently, I 
+started imbibing a pattern of learning in which I mark something as learned if and only if I am successful in making another person understand 
+that concept in the most simple terms. So sticking on to that thumb rule and to force the zen pattern, I am trying to to explain the Architecture
+from a different(more practical) point of view(I presume you have basic understanding of Hadoop and MapReduce).
+
+&lt;h2 id=&quot;the-basics-quick-glance-through-what-we-already-know&quot;&gt;&lt;em&gt;The basics (Quick glance through what we already know)&lt;/em&gt;&lt;/h2&gt;
+
+We all know that the Spark Architecture sits on top of the Hadoop Platform. So, the simple layman question - What is a Hadoop cluster and why do we need it ?
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;As per Wiki - Apache Hadoop is an open-source software framework used for distributed storage and processing of dataset of big data using the MapReduce programming model.
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+To understand the need and evolution of Hadoop-MapReduce, I suggest you to go through the below write up :-
+
+&lt;a href=&quot;https://github.com/vineethMM/spark-examples/blob/master/README.md&quot;&gt;Evolution of Hadoop and MapReduce&lt;/a&gt;
+
+&lt;em&gt;P.S : - More to Come on this introduction part.&lt;/em&gt;
+
+&lt;h2 id=&quot;connecting-the-dots&quot;&gt;Connecting the Dots&lt;/h2&gt;
+
+Ok, Let’s try to see the whole architecture from a different perspective. We all know that the Hadoop cluster is “made” using the commodity Hardwares 
+and let’s assume that we have 5 Physical machines each of them is having a basic configuration (16GB RAM, 1 TB HDD, and 8 Core Processors).
+
+&lt;img src=&quot;/images/Machines.png&quot; alt=&quot;Hypothesis&quot; /&gt;
+
+Ta-da, we have got the physical machines in place and we now need to do is to setup a Spark Cluster using these machines. To separate the concerns, we 
+will be sticking on to the official Spark Architecture (Documentation) and try to illustrate how the following components are form part of the Architecture.
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;em&gt;Main Components - Hypothesis&lt;/em&gt;
+    &lt;ul&gt;
+      &lt;li&gt;Driver Program :- This should be the user logic and configuration, eh?&lt;/li&gt;
+      &lt;li&gt;Cluster Manager :- This should be something which manages the Cluster (Hmm, resources and flow ? )&lt;/li&gt;
+      &lt;li&gt;Worker Node :- This should be something which does the actual work ?&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+We will try to give a formal definition and the responsibilities of each of these components in a while. Since we are building a Hadoop Spark Cluster, we should 
+have a Distributed Storage layer built first by connecting all these machines to store the large volumes of data. So in the cluster we are going to build, 
+we will make the Machine 1 as the Edge Node (A single point of access from where an end-user can perform anything on the cluster) and only 3 out of the 4 remaining
+machines(Machine 2, 3 &amp;amp; 4) will only be used to store the data in the cluster and thus form the storage layer (3 * 1 TB = ~3 TB). If you closely observe the different  &lt;br /&gt;
+components in Hadoop Eco-system, almost everything work in a Master-Slave architecture. A master who controls and co-ordinates the actions and the slaves who perform 
+those actions. In the case of Distributed Storage, the master is called NameNode and the slaves are called DataNodes. So if you try to point them back to our simple 
+cluster NameNode is a process running on the Machine 5 and DataNodes are individual processes running on Machine 2,3 &amp;amp; 4. Similarly, for managing the task allocation
+and resources, the Resource Manager(Master) will be running on Machine 5 and individual Node Managers(slaves) will be running on each of the Machines 2, 3 &amp;amp; 4.
+
+&lt;img src=&quot;/images/ClusterInitial.png&quot; alt=&quot;Cluster Initial Build&quot; /&gt;
+
+&lt;h2 id=&quot;connecting-the-dots---the-capacity-of-our-cluster&quot;&gt;Connecting the Dots - The Capacity of our Cluster!&lt;/h2&gt;
+
+Now that we have a storage layer to layer to store our ‘Big Data’, there should be some mechanism to do the computation/processing. If we do a quick peek into the Spark Architecture(Yes, I am 
+still following the bottom up method to explain things :D ), we can see Components named &lt;em&gt;Executor&lt;/em&gt; with individual Task and Cache. Yes, these are the Heros which gets the work done. We 
+can treat each Executor as individual container with its own Processor and Memory(Virtual Cores - Will be explained in a separate thread - &lt;a href=&quot;&quot;&gt;Spark Memory Management&lt;/a&gt; - Ideally the V-Cores are equal to the number of physical
+cores available in each Node). So if we do the math, Each of our Worker Node makes the following contributions to the total capacity of the Cluster.
+
+&lt;table&gt;
+  &lt;tbody&gt;
+    &lt;tr&gt;
+      &lt;td&gt;*&lt;/td&gt;
+      &lt;td&gt;Attribute&lt;/td&gt;
+      &lt;td&gt;Value&lt;/td&gt;
+      &lt;td&gt;How&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;1&lt;/td&gt;
+      &lt;td&gt;Storage&lt;/td&gt;
+      &lt;td&gt;1 GB&lt;/td&gt;
+      &lt;td&gt;It is the HDD available to Store Data&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;2&lt;/td&gt;
+      &lt;td&gt;V - Cores&lt;/td&gt;
+      &lt;td&gt;5 Cores&lt;/td&gt;
+      &lt;td&gt;Leaving 1 Core for NM, 1 Core for DN and 1 Core for OS&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;3&lt;/td&gt;
+      &lt;td&gt;Memory&lt;/td&gt;
+      &lt;td&gt;10 GB&lt;/td&gt;
+      &lt;td&gt;Leaving 4 GB for OS, NM and DN&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;*&lt;/td&gt;
+      &lt;td&gt;Total&lt;/td&gt;
+      &lt;td&gt;3 TB HDD + 15 V-Cores + 30 GB&lt;/td&gt;
+      &lt;td&gt;Adding the resources from each of the nodes&lt;/td&gt;
+    &lt;/tr&gt;
+  &lt;/tbody&gt;
+&lt;/table&gt;
+
+To summarize, the Node Managers will share the Memory and V-Core information to the Resource Managers and the DataNodes will share the Disk space 
+statistics with the NameNodes during their startup. The cumulative information will actually provide the overall capacity of the cluster.
+
+P.S: There are more to this like pluggable Capacity Scheduler and the Algorithm for Calculating the resource availability (Default Resource Calculator and 
+DominantResource Calculator using Dominant Resource Fairness ) - We will talk about this in a separate thread &lt;a href=&quot;&quot;&gt;Resource Scheduling&lt;/a&gt;
+
+The continuation of this discussion will happen in the next Post &lt;a href=&quot;https://dreamlabs4u.github.io/2017/05/27/spark-architecture-part2/&quot;&gt;Spark Architecture : Part 2 - Let’s set the ball rolling&lt;/a&gt;
+
+</description>
+        <pubDate>Sat, 27 May 2017 00:00:00 +1000</pubDate>
+        <link>http://localhost:4000/2017/05/27/spark-architecture-part1/</link>
+        <guid isPermaLink="true">http://localhost:4000/2017/05/27/spark-architecture-part1/</guid>
+        
+        <category>Spark,</category>
+        
+        <category>Scala</category>
+        
+        
+        <category>Spark</category>
+        
+      </item>
     
       <item>
         <title>Monad Explained! - The Scala way</title>
@@ -16,6 +428,8 @@
 &lt;/ul&gt;
 
 &lt;h1 id=&quot;monad&quot;&gt;Monad&lt;/h1&gt;
+
+P.S: Just Rough Notes - WIP - Will have to Develop to a readable content :)
 
 Monad, M[T], is an amplification (or considered as a wrapper) of a generic type T such that
 

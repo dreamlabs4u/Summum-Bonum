@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>Spark Architecture : Part 2 - Let&#39;s set the ball rolling</title>
+    <meta name="description" content="  Baby Step 1 : Prepare your executablePlease note that this is a continuation from Spark Architecture : Part 1 - Making sure that the basement is right!Baby...">
+
+    <link rel="shortcut icon" href="/favicon.ico?" type="image/x-icon">
+    <link rel="icon" href="/favicon.ico?" type="image/x-icon">
+    <link rel="stylesheet" href="https://cdn.bootcss.com/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="https://at.alicdn.com/t/font_8v3czwksspqlg14i.css">
+    <link rel="stylesheet" href="/css/main.css ">
+    <link rel="canonical" href="http://localhost:4000/2017/05/27/spark-architecture-part2/">
+    <link rel="alternate" type="application/rss+xml" title="Dreamlabs4u" href="http://localhost:4000/feed.xml ">
+
+
+
+
+
+</head>
+
+
+  <body>
+
+    <header id="top">
+    <div class="wrapper">
+        <a href="/" class="brand">Dreamlabs4u</a>
+        <small>A fanboy of Moments, Code and Life!</small>
+        <button id="headerMenu" class="menu"><i class="fa fa-bars"></i></button>
+        <nav id="headerNav">
+            <ul>
+                <li>
+                    
+                    <a href="/">
+                    
+                        <i class="fa fa-home"></i>Home
+                    </a>
+                </li>
+
+                
+                    
+                    <li>
+                        
+                        <a href="/archive/">
+                        
+                            <i class="fa fa-archive"></i>Archives
+                        </a>
+                    </li>
+                    
+                
+                    
+                    <li>
+                        
+                        <a href="/category/">
+                        
+                            <i class="fa fa-th-list"></i>Categories
+                        </a>
+                    </li>
+                    
+                
+                    
+                    <li>
+                        
+                        <a href="/tag/">
+                        
+                            <i class="fa fa-tags"></i>Tags
+                        </a>
+                    </li>
+                    
+                
+                    
+                    <li>
+                        
+                        <a href="/collection/">
+                        
+                            <i class="fa fa-bookmark"></i>Collections
+                        </a>
+                    </li>
+                    
+                
+                    
+                    <li>
+                        
+                        <a href="/demo/">
+                        
+                            <i class="fa fa-play"></i>Demo
+                        </a>
+                    </li>
+                    
+                
+                    
+                    <li>
+                        
+                        <a href="/about/">
+                        
+                            <i class="fa fa-heart"></i>About
+                        </a>
+                    </li>
+                    
+                
+                    
+                
+                    
+                
+                    
+                
+                    
+                
+            </ul>
+        </nav>
+    </div>
+</header>
+
+
+        <div class="page clearfix" post>
+    <div class="left">
+        <h1>Spark Architecture : Part 2 - Let's set the ball rolling</h1>
+        <div class="label">
+
+            <div class="label-card">
+                <i class="fa fa-calendar"></i>2017-05-27
+            </div>
+
+            <div class="label-card">
+                <i class="fa fa-user"></i>Toney Thomas
+                
+            </div>
+
+            <div class="label-card">
+                
+            </div>
+
+            <div class="label-card">
+            
+
+
+<!-- <span class="point">•</span> -->
+<span class="categories">
+  <i class="fa fa-th-list"></i>
+  
+    
+        <a href="/category/#Spark" title="Category: Spark" rel="category">Spark</a>
+    
+  
+
+  <!-- <span class="point">•</span> -->
+</span>
+
+
+            </div>
+
+            <div class="label-card">
+            
+<!-- <span class="point">•</span> -->
+<span class="pageTag">
+  <i class="fa fa-tags"></i>
+  
+    
+        <!--a href="/tag/#Spark%2C" title="Tag: Spark," rel="tag">Spark,</a-->
+        <a href="/tag/#Spark," title="Tag: Spark," rel="tag">Spark,</a>&nbsp;
+    
+        <!--a href="/tag/#Scala" title="Tag: Scala" rel="tag">Scala</a-->
+        <a href="/tag/#Scala" title="Tag: Scala" rel="tag">Scala</a>
+    
+  
+
+</span>
+
+            </div>
+
+        </div>
+        <hr>
+        <article itemscope itemtype="http://schema.org/BlogPosting">
+        <ul id="markdown-toc">
+  <li><a href="#baby-step-1--prepare-your-executable" id="markdown-toc-baby-step-1--prepare-your-executable">Baby Step 1 : Prepare your executable</a></li>
+</ul>
+
+<p>Please note that this is a continuation from <a href="https://dreamlabs4u.github.io/2017/05/27/spark-architecture-part1/">Spark Architecture : Part 1 - Making sure that the basement is right!</a></p>
+
+<h2 id="baby-step-1--prepare-your-executable">Baby Step 1 : Prepare your executable</h2>
+
+<p>Now that we have the cluster (with HDFS Layer, Node Manger and Resource Manager) in place we will name this state as ‘Dot1’. Keeping this aside,
+now we will switch our context back to the WordCount Program we have already written and tested <a href="https://github.com/dreamlabs4u/SparkInsights/blob/master/src/main/scala/com/study/spark/WordCountSimple.scala">WordCount - Spark</a>
+Our aim is to run this WordCount Program in Spark Cluster and see how it interacts with different components and dissect each components to 
+see what exactly is happening under the hood to define rest of the components in the Architecture.</p>
+
+<div class="language-scala highlighter-rouge"><pre class="highlight"><code><span class="c1">// RDD 1
+</span>    <span class="k">val</span> <span class="n">inputRDD</span> <span class="k">=</span> <span class="n">sc</span><span class="o">.</span><span class="n">textFile</span><span class="o">(</span><span class="n">inputPath</span><span class="o">)</span>
+
+    <span class="c1">// RDD2
+</span>    <span class="k">val</span> <span class="n">wordsRDD</span> <span class="k">=</span> <span class="n">inputRDD</span><span class="o">.</span><span class="n">flatMap</span><span class="o">(</span><span class="k">_</span><span class="o">.</span><span class="n">split</span><span class="o">(</span><span class="s">"\\s+"</span><span class="o">))</span> <span class="c1">// split words
+</span>
+    <span class="c1">// RDD 3
+</span>    <span class="k">val</span> <span class="n">tuplesRDD</span> <span class="k">=</span> <span class="n">wordsRDD</span><span class="o">.</span><span class="n">map</span><span class="o">(</span><span class="n">w</span> <span class="k">=&gt;</span> <span class="o">(</span><span class="n">w</span><span class="o">,</span> <span class="mi">1</span><span class="o">))</span>
+
+    <span class="c1">// RDD 4
+</span>    <span class="k">val</span> <span class="n">reducedRDD</span> <span class="k">=</span> <span class="n">tuplesRDD</span><span class="o">.</span><span class="n">reduceByKey</span><span class="o">(</span><span class="k">_</span> <span class="o">+</span> <span class="k">_</span><span class="o">)</span>
+
+    <span class="c1">// Action
+</span>    <span class="n">reducedRDD</span><span class="o">.</span><span class="n">saveAsTextFile</span><span class="o">(</span><span class="n">outputPath</span><span class="o">)</span>
+</code></pre>
+</div>
+
+<p>So the core of the WordCount Program is shown above and we are ready with the executable. In the cluster, we have already identified a physical
+machine as the Edge Node(Assume that we have already installed the Spark Cluster and all the Spark Binaries are available in the Edge Node). When we
+submit the Job, the execution flows through the following steps.</p>
+
+<p><img src="/images/DriverProgramOps.png" alt="Driver Program Responsibilities" /></p>
+
+<ol>
+  <li>Spark Will identify what is the List of RDDs in the program and the lineage between them. When any action(<a href="">Actions &amp; Transformation</a>) is called on the RDD,
+spark creates the DAG(Directed Ascylic Graph) and sends it to the DAG Scheduler.</li>
+  <li>
+    <p>The DAG Scheduler splits the operations into different stages. As we already discussed there are mainly two types of operations that result in RDD - i.e Transformations
+and action among this there can be two types of Transformations one is narrow transformation and the other one is wide transformation(involves shuffling - i.e network transfer). 
+The wide transformation determines the stage boundaries(i.e it is a trigger for next stage; Eg: reduceByKey, groupBy etc). So our WordCount program, RDD4 defines the 
+boundary and all the operations in RDD1, RDD2 and RDD3 can go in single stage and the operations can be coupled together and parallelised. RDD4, RDD5 groups together 
+to form the Stage 2.</p>
+
+    <p><img src="/images/DAG.png" alt="DAG of WordCount" /></p>
+  </li>
+  <li>
+    <p>Once the DAG is generated, each stages will be send as an input to the Task Scheduler to generate the physical execution plan. The number of physical tasks 
+spawned depends on the number of partitions generated out of the file (Based on Block size). For instance, in our case say if we are processing 1.5 GB 
+data then the number of tasks spawned will be 1.5 GB / 128 MB = 12. Now the question is how these tasks are shared to get the work done. That is 
+where the Worker Node comes into the picture. Ok, now that I have 12 tasks to process and assume that spark(by default) spawned two Executors to
+to get the work done. Let’s assume that the 2 executors spawned are having the configuration of 512 MB (Container Memory) and 1 V-Core and we have 12 
+Tasks to complete. It is very obvious that the all of the 12 tasks can be processed at once because the core will only function in a time sharing manner and at most 
+2 tasks can be executed in parallel. So task1 will be allotted to the Executor of the node 1 (Depends on the data locality) and the task 2 will be
+allotted to the next. Depending up on whoever completes the task first will get the subsequent task allocated and once all the 12 Tasks are done in this fashion, 
+the Stage 1 will be completed.</p>
+
+    <p><img src="/images/EventsStage1.png" alt="DAG of WordCount" /></p>
+
+    <p>The Stage 2 (Starts with the shuffled dataset) will always have the same number of tasks as that of the stage 1(unless and otherwise if you repartition the RDD)</p>
+
+    <p><img src="/images/partitionStages.png" alt="Partitions Across Stages" /></p>
+
+    <p>The tasks of the Stage 2 will also get executed based on the Executor/Core availability and the final data will be written on to the target file.</p>
+
+    <p><img src="/images/EventStage2.png" alt="Stage 2 Events" /></p>
+
+    <p>One interesting thing to notice over here is that the Mapper and Reducer Phases ran on the Same Node and they are re-using the Executor JVM for the 
+processing and this is one of the main reason why Spark is so Powerful (Yes, the Caching Mechanism to store the data in RAM is also there). There are
+more things coming up on the Memory Management and Executor Memory Turning on <a href="">Part 3 - One More Baby Step : Executor Memory Management and Tuning</a></p>
+  </li>
+</ol>
+
+
+        </article>
+        <hr>
+
+        
+        
+            
+            
+                
+                    
+                
+                    
+                
+            
+                
+                    
+                        
+                        <h2 id="similar_posts">Similar Posts</h2>
+                        <ul>
+                        
+                        <li class="relatedPost">
+                            <a href="http://localhost:4000/2017/06/16/A-Humble-attempt-to-Understand-Streaming-Part1/">A Humble attempt to Understand Streaming Data and the way we process it!
+                            
+                            </a>
+                        </li>
+                        
+                        
+                    
+                
+                    
+                
+            
+                
+                    
+                
+                    
+                
+            
+        
+            
+            
+                
+                    
+                
+                    
+                        
+                        <li class="relatedPost">
+                            <a href="http://localhost:4000/2017/06/10/Implicits-And-Typeclasses-in-scala/">Implicits and Type Classes
+                            
+                            </a>
+                        </li>
+                        
+                        
+                    
+                
+            
+        
+            
+            
+                
+                    
+                        
+                        <li class="relatedPost">
+                            <a href="http://localhost:4000/2017/05/28/CCA175-Cloudera-Spark-Hadoop-part1/">CCA 175 - Cloudera Spark & Hadoop Certification - Part 1
+                            
+                            </a>
+                        </li>
+                        
+                        
+                    
+                
+                    
+                
+            
+                
+                    
+                
+                    
+                
+            
+                
+                    
+                
+                    
+                
+            
+                
+                    
+                
+                    
+                
+            
+        
+            
+            
+                
+                    
+                        
+                        <li class="relatedPost">
+                            <a href="http://localhost:4000/2017/05/27/spark-architecture-part1/">Spark Architecture : Part 1 - Making sure that the basement is right!
+                            
+                            </a>
+                        </li>
+                        
+                        
+                    
+                
+                    
+                
+            
+                
+                    
+                
+                    
+                
+            
+        
+            
+            
+                
+                    
+                
+                    
+                        
+                        <li class="relatedPost">
+                            <a href="http://localhost:4000/2017/05/19/monad-explained/">Monad Explained! - The Scala way
+                            
+                            </a>
+                        </li>
+                        
+                        
+                    
+                
+            
+        
+            
+            
+                
+                    
+                
+                    
+                
+            
+        
+        
+            </ul>
+        
+
+        <div class="post-recent">
+    <div class="pre">
+        
+        <p><strong>上一篇</strong> <a href="/2017/05/27/spark-architecture-part1/">Spark Architecture : Part 1 - Making sure that the basement is right!</a></p>
+        
+    </div>
+    <div class="nex">
+
+        
+        <p><strong>下一篇</strong> <a href="/2017/05/28/CCA175-Cloudera-Spark-Hadoop-part1/">CCA 175 - Cloudera Spark & Hadoop Certification - Part 1</a></p>
+        
+    </div>
+</div>
+
+
+        <h2 id="comments">Comments</h2>
+        
+<!-- 多说评论框 start -->
+<div class="ds-thread" data-thread-key="http://localhost:4000/2017/05/27/spark-architecture-part2/" data-title="Spark Architecture : Part 2 - Let's set the ball rolling" data-url="http://localhost:4000/2017/05/27/spark-architecture-part2/"></div>
+<!-- 多说评论框 end -->
+<!-- 多说公共JS代码 start (一个网页只需插入一次) -->
+<script type="text/javascript">
+    var duoshuoQuery = {
+        short_name: "dreamlabs4u"
+    };
+    (function() {
+        var ds = document.createElement('script');
+        ds.type = 'text/javascript';
+        ds.async = true;
+        ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+        ds.charset = 'UTF-8';
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+</script>
+<!-- 多说公共JS代码 end -->
+
+
+
+<div id="disqus_thread"></div>
+<script>
+    /**
+     * RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
+     * LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables
+     */
+
+    var disqus_config = function() {
+        this.page.url = 'http://localhost:4000/2017/05/27/spark-architecture-part2/'; // Replace PAGE_URL with your page's canonical URL variable
+        this.page.identifier = 'http://localhost:4000/2017/05/27/spark-architecture-part2/'; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
+    };
+
+    (function() { // DON'T EDIT BELOW THIS LINE
+        var d = document,
+            s = d.createElement('script');
+
+        s.src = '//dreamlabs4u.disqus.com/embed.js';
+
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript>
+
+
+
+
+    </div>
+    <button class="anchor"><i class="fa fa-anchor"></i></button>
+    <div class="right">
+        <div class="wrap">
+
+            <!-- Content -->
+            <div class="side content">
+                <div>
+                    Content
+                </div>
+                <ul id="content-side" class="content-ul">
+                    <li><a href="#similar_posts">Similar Posts</a></li>
+                    <li><a href="#comments">Comments</a></li>
+                </ul>
+            </div>
+            <!-- 其他div框放到这里 -->
+            <!-- <div class="side">bbbb</div> -->
+        </div>
+    </div>
+</div>
+<script>
+/**
+ * target _blank
+ */
+(function() {
+    var aTags = document.querySelectorAll('article a:not([id])')
+    for (var i = 0; i < aTags.length; i++) {
+        aTags[i].setAttribute('target', '_blank')
+    }
+}());
+</script>
+<script src="/js/pageContent.js " charset="utf-8"></script>
+
+
+    <footer class="site-footer">
+
+
+    <div class="wrapper">
+
+        <p class="description">
+            
+        </p>
+        <p class="contact">
+            Contact me at: 
+            <a href="https://github.com/dreamlabs4u" title="GitHub"><i class="fa fa-github" aria-hidden="true"></i></a>  
+            <a href="mailto:dreamlabs4u@gmail.com" title="email"><i class="fa fa-envelope-o" aria-hidden="true"></i></a>    
+            <a href="https://twitter.com/dreamlabs4u" title="Twitter"><i class="fa fa-twitter" aria-hidden="true"></i></a>  
+            <a href="https://www.facebook.com/dreamlabs4u" title="Facebook"><i class="fa fa-facebook-official" aria-hidden="true"></i></a>   
+            <a href="https://www.linkedin.com/in/dreamlabs4u" title="LinkedIn"><i class="fa fa-linkedin" aria-hidden="true"></i></a>  
+        </p>
+        <p class="power">
+            <span>
+                Site powered by <a href="https://jekyllrb.com/">Jekyll</a> & <a href="https://pages.github.com/">Github Pages</a>.
+            </span>
+            <span>
+                Theme designed by <a href="https://github.com/Gaohaoyang">HyG</a>.
+            </span>
+        </p>
+    </div>
+</footer>
+<script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+    <div class="back-to-top">
+    <a href="#top" data-scroll>
+        <i class="fa fa-arrow-up" aria-hidden="true"></i>
+    </a>
+</div>
+
+    <script src=" /js/main.js " charset="utf-8"></script>
+    <script src=" /js/smooth-scroll.min.js " charset="utf-8"></script>
+    <script type="text/javascript">
+      smoothScroll.init({
+        speed: 500, // Integer. How fast to complete the scroll in milliseconds
+        easing: 'easeInOutCubic', // Easing pattern to use
+        offset: 20, // Integer. How far to offset the scrolling anchor location in pixels
+      });
+    </script>
+    <!-- <script src=" /js/scroll.min.js " charset="utf-8"></script> -->
+  </body>
+
+</html>

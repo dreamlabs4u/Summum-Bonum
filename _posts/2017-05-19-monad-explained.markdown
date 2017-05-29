@@ -11,6 +11,8 @@ author: Toney Thomas
 
 # Monad
 
+P.S: Just Rough Notes - WIP - Will have to Develop to a readable content :) 
+
 Monad, M[T], is an amplification (or considered as a wrapper) of a generic type T such that 
 
 1. Any Monad, M[T] can be created by applying a creation function on T

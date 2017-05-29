@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>A Humble attempt to Understand Streaming Data and the way we process it!</title>
+    <meta name="description" content="  Batch Data Vs Streaming Data …  Indefinite flow of data …  #Process_Pattern_1 : Process data as and when it is available.Recently my friend has asked me, “...">
+
+    <link rel="shortcut icon" href="/favicon.ico?" type="image/x-icon">
+    <link rel="icon" href="/favicon.ico?" type="image/x-icon">
+    <link rel="stylesheet" href="https://cdn.bootcss.com/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="https://at.alicdn.com/t/font_8v3czwksspqlg14i.css">
+    <link rel="stylesheet" href="/css/main.css ">
+    <link rel="canonical" href="http://localhost:4000/2017/06/16/A-Humble-attempt-to-Understand-Streaming-Part1/">
+    <link rel="alternate" type="application/rss+xml" title="Dreamlabs4u" href="http://localhost:4000/feed.xml ">
+
+
+
+
+
+</head>
+
+
+  <body>
+
+    <header id="top">
+    <div class="wrapper">
+        <a href="/" class="brand">Dreamlabs4u</a>
+        <small>A fanboy of Moments, Code and Life!</small>
+        <button id="headerMenu" class="menu"><i class="fa fa-bars"></i></button>
+        <nav id="headerNav">
+            <ul>
+                <li>
+                    
+                    <a href="/">
+                    
+                        <i class="fa fa-home"></i>Home
+                    </a>
+                </li>
+
+                
+                    
+                    <li>
+                        
+                        <a href="/archive/">
+                        
+                            <i class="fa fa-archive"></i>Archives
+                        </a>
+                    </li>
+                    
+                
+                    
+                    <li>
+                        
+                        <a href="/category/">
+                        
+                            <i class="fa fa-th-list"></i>Categories
+                        </a>
+                    </li>
+                    
+                
+                    
+                    <li>
+                        
+                        <a href="/tag/">
+                        
+                            <i class="fa fa-tags"></i>Tags
+                        </a>
+                    </li>
+                    
+                
+                    
+                    <li>
+                        
+                        <a href="/collection/">
+                        
+                            <i class="fa fa-bookmark"></i>Collections
+                        </a>
+                    </li>
+                    
+                
+                    
+                    <li>
+                        
+                        <a href="/demo/">
+                        
+                            <i class="fa fa-play"></i>Demo
+                        </a>
+                    </li>
+                    
+                
+                    
+                    <li>
+                        
+                        <a href="/about/">
+                        
+                            <i class="fa fa-heart"></i>About
+                        </a>
+                    </li>
+                    
+                
+                    
+                
+                    
+                
+                    
+                
+                    
+                
+            </ul>
+        </nav>
+    </div>
+</header>
+
+
+        <div class="page clearfix" post>
+    <div class="left">
+        <h1>A Humble attempt to Understand Streaming Data and the way we process it!</h1>
+        <div class="label">
+
+            <div class="label-card">
+                <i class="fa fa-calendar"></i>2017-06-16
+            </div>
+
+            <div class="label-card">
+                <i class="fa fa-user"></i>Toney Thomas
+                
+            </div>
+
+            <div class="label-card">
+                
+            </div>
+
+            <div class="label-card">
+            
+
+
+<!-- <span class="point">•</span> -->
+<span class="categories">
+  <i class="fa fa-th-list"></i>
+  
+    
+        <a href="/category/#Scala" title="Category: Scala" rel="category">Scala</a>
+    
+  
+
+  <!-- <span class="point">•</span> -->
+</span>
+
+
+            </div>
+
+            <div class="label-card">
+            
+<!-- <span class="point">•</span> -->
+<span class="pageTag">
+  <i class="fa fa-tags"></i>
+  
+    
+        <!--a href="/tag/#Scala%2C" title="Tag: Scala," rel="tag">Scala,</a-->
+        <a href="/tag/#Scala," title="Tag: Scala," rel="tag">Scala,</a>&nbsp;
+    
+        <!--a href="/tag/#Spark%2C" title="Tag: Spark," rel="tag">Spark,</a-->
+        <a href="/tag/#Spark," title="Tag: Spark," rel="tag">Spark,</a>&nbsp;
+    
+        <!--a href="/tag/#Spark-Streaming" title="Tag: Spark-Streaming" rel="tag">Spark-Streaming</a-->
+        <a href="/tag/#Spark-Streaming" title="Tag: Spark-Streaming" rel="tag">Spark-Streaming</a>
+    
+  
+
+</span>
+
+            </div>
+
+        </div>
+        <hr>
+        <article itemscope itemtype="http://schema.org/BlogPosting">
+        <ul id="markdown-toc">
+  <li><a href="#batch-data-vs-streaming-data-" id="markdown-toc-batch-data-vs-streaming-data-">Batch Data Vs Streaming Data …</a></li>
+  <li><a href="#indefinite-flow-of-data-" id="markdown-toc-indefinite-flow-of-data-">Indefinite flow of data …</a></li>
+  <li><a href="#process_pattern_1--process-data-as-and-when-it-is-available" id="markdown-toc-process_pattern_1--process-data-as-and-when-it-is-available"><em>#Process_Pattern_1</em> : Process data as and when it is available.</a></li>
+</ul>
+
+<p>Recently my friend has asked me, “Dude, it’s been quite some time that you have been working on Big Data and related software 
+stacks. I have a simple problem and could you please educate me on these jargons and provide a suitable solution ? “</p>
+
+<p>The inherent repulsive behaviour in me have put me in a defensive mode but I somehow mustered enough courage to hear the problem statement out and 
+it goes like this :-</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>"Let's assume that you have a stream of data flowing in and I want to put the data into different buckets by aligning with the following rules :-
+
+    1. The records in a given bucket shouldn't be duplicates 
+    2. All the incoming data should be emitted out i.e the collection of data in different buckets will be the same as incoming data. 
+    
+Once, the data is arranged in different buckets, we should be able to call a Sink. Let's assume this as an HTTP API Service / HDFS output location.     
+</code></pre>
+</div>
+
+<p>Whenever I am encountered with a problem, I will try to picturise the statement in my mind (I assume our brain has some ‘magical’ power
+to process and give out results when we lift problem statements into diagrams with box and connectors :) ) and that goes like this :-</p>
+
+<p><img src="/images/sparkstreaming_ps1.png" alt="Problem Statement" /></p>
+
+<p>Ok, we are successful in plotting the problem statements using box and connectors. But, I already find myself bombarded with lot of 
+questions which I am not certain about.</p>
+
+<ol>
+  <li><em>What is a streaming data ?</em></li>
+  <li><em>What is the best mechanism to ingest it.</em></li>
+  <li><em>Even if I find a mechanism to ingest the data how much of the incoming data will can be processed at a time ?</em></li>
+  <li><em>What all things can be done with the streaming dataset and methods available for sink ?</em></li>
+</ol>
+
+<p>We will try to answer each of these questions at different points in the journey.</p>
+
+<p>As we all do, my immediate reflex was to google on these jargons and without much hassle I was able to come up with the 
+following conclusions.</p>
+
+<h2 id="batch-data-vs-streaming-data-">Batch Data Vs Streaming Data …</h2>
+
+<p>In real world data is generated majorly in two ways, end result of a statistical analysis or by the end result of an event. Lets say,
+if I am periodically checking the account balances of customers in a bank or memory usage in a computer and records it as a dataset then 
+it can be fairly be categorised as dataset derived out of statistical analysis. There is another class of dataset generated out of instances like
+data generated out of sensors, security systems, medical devices based on events happening at their habitat. We couldn’t simply predict the occurrence interval of those
+data. For instance, lets treat the webserver logs as a dataset and the data will be continuously generated whenever someone accesses any of the
+websites hosted on that server. This continuous flow of events can be called as streaming dataset. In a typical Big Data Environment, the need 
+for performing real-time stream processing is rapidly increasing and below is some witty but striking example to reason the statement.</p>
+
+<p><img src="/images/streamvsbatch.png" alt="Strem Vs Batch" /></p>
+
+<h2 id="indefinite-flow-of-data-">Indefinite flow of data …</h2>
+
+<p>Now that we know the difference between the Batch Data and Streaming data processing, the very first concern that would come to our mind is its
+behaviour - the indefinite flow of incoming data. We should have a mechanism to make sure that all the incoming data is processed as and when it 
+is available. In layman terms, I can think of couple of ways to handle this scenario</p>
+
+<ol>
+  <li>Have a processing layer capable of processing the data as and when it is available. - <em>#Process_Pattern_1</em></li>
+  <li>Have a queueing system in place to hold the incoming data and let the processing layer source the data from there and process. <em>#Process_Pattern_2</em></li>
+</ol>
+
+<p>On further research, I narrowed down my options for the Processing Layer. We can either use Spark Streaming / Storm as a processing layer and 
+and Kafka / Flume as queuing system to control the flow of incoming data before it is served for processing.</p>
+
+<p><img src="/images/SparkStreamingDiag.png" alt="Spark Streaming Architecture" /></p>
+
+<p>But, in this post we will be concentrating only on the Spark Streaming + Kafka Integration to implement the solution to the problem we had started with.</p>
+
+<h2 id="process_pattern_1--process-data-as-and-when-it-is-available"><em>#Process_Pattern_1</em> : Process data as and when it is available.</h2>
+
+<p>Before coming into a solution, we will try to get a basic understanding about the Processing Layer (Spark Streaming) using a simple 
+network word count application. Let’s assume that we have a netcat server as a source for streaming dataset and our aim is to compute the
+word count on the incoming data. In the case of batch mode word count, <a href="">Simple Word Count using Spark</a>, we were reading in the source dataset,
+doing the RDD transformations and computes the word count on the whole dataset and finally the results were written on to the disk. In that 
+case the actual computation was done on the whole dataset. But, when it comes to the real time streaming, we do not know what can be the size 
+of the dataset and when should the computation on that defined dataset be emitted out. This is where the relevance of batch size comes into picture.</p>
+
+<div class="language-scala highlighter-rouge"><pre class="highlight"><code>    <span class="c1">// Create the context with a 1 second batch size
+</span>    <span class="k">val</span> <span class="n">sparkConf</span> <span class="k">=</span> <span class="k">new</span> <span class="nc">SparkConf</span><span class="o">().</span><span class="n">setMaster</span><span class="o">(</span><span class="n">args</span><span class="o">(</span><span class="mi">0</span><span class="o">)).</span><span class="n">setAppName</span><span class="o">(</span><span class="s">"NetworkWordCount"</span><span class="o">)</span>
+    <span class="k">val</span> <span class="n">ssc</span> <span class="k">=</span> <span class="k">new</span> <span class="nc">StreamingContext</span><span class="o">(</span><span class="n">sparkConf</span><span class="o">,</span> <span class="nc">Seconds</span><span class="o">(</span><span class="mi">1</span><span class="o">))</span>
+    
+    <span class="c1">// Create a socket stream(ReceiverInputDStream) on target ip:port
+</span>    <span class="k">val</span> <span class="n">lines</span> <span class="k">=</span> <span class="n">ssc</span><span class="o">.</span><span class="n">socketTextStream</span><span class="o">(</span><span class="n">args</span><span class="o">(</span><span class="mi">1</span><span class="o">),</span> <span class="n">args</span><span class="o">(</span><span class="mi">2</span><span class="o">).</span><span class="n">toInt</span><span class="o">,</span> <span class="nc">StorageLevel</span><span class="o">.</span><span class="nc">MEMORY_AND_DISK_SER</span><span class="o">)</span>
+    
+    <span class="c1">// Split words by space to form DStream[String]
+</span>    <span class="k">val</span> <span class="n">words</span> <span class="k">=</span> <span class="n">lines</span><span class="o">.</span><span class="n">flatMap</span><span class="o">(</span><span class="k">_</span><span class="o">.</span><span class="n">split</span><span class="o">(</span><span class="s">" "</span><span class="o">))</span>
+    
+    <span class="c1">// count the words to form DStream[(String, Int)]
+</span>    <span class="k">val</span> <span class="n">wordCounts</span> <span class="k">=</span> <span class="n">words</span><span class="o">.</span><span class="n">map</span><span class="o">(</span><span class="n">x</span> <span class="k">=&gt;</span> <span class="o">(</span><span class="n">x</span><span class="o">,</span> <span class="mi">1</span><span class="o">)).</span><span class="n">reduceByKey</span><span class="o">(</span><span class="k">_</span> <span class="o">+</span> <span class="k">_</span><span class="o">)</span>
+    
+    <span class="c1">// print the word count in the batch
+</span>    <span class="n">wordCounts</span><span class="o">.</span><span class="n">print</span><span class="o">()</span>
+    
+    <span class="n">ssc</span><span class="o">.</span><span class="n">start</span><span class="o">()</span>
+    
+    <span class="n">ssc</span><span class="o">.</span><span class="n">awaitTermination</span><span class="o">()</span>
+</code></pre>
+</div>
+
+<p>Internally, it works as follows. Spark Streaming receives live input data streams and divides the data into batches, which 
+are then processed by the Spark engine to generate the final stream of results in batches.</p>
+
+<p>The typical “word count” comes to the rescue. I will try to explain the</p>
+
+        </article>
+        <hr>
+
+        
+        
+            
+            
+                
+                    
+                
+                    
+                
+                    
+                
+            
+        
+            
+            
+                
+                    
+                
+                    
+                        
+                        <h2 id="similar_posts">Similar Posts</h2>
+                        <ul>
+                        
+                        <li class="relatedPost">
+                            <a href="http://localhost:4000/2017/05/28/CCA175-Cloudera-Spark-Hadoop-part1/">CCA 175 - Cloudera Spark & Hadoop Certification - Part 1
+                            
+                            </a>
+                        </li>
+                        
+                        
+                    
+                
+                    
+                
+            
+                
+                    
+                
+                    
+                
+                    
+                
+            
+                
+                    
+                
+                    
+                
+                    
+                
+            
+                
+                    
+                
+                    
+                
+                    
+                
+            
+        
+            
+            
+                
+                    
+                
+                    
+                        
+                        <li class="relatedPost">
+                            <a href="http://localhost:4000/2017/05/27/spark-architecture-part2/">Spark Architecture : Part 2 - Let's set the ball rolling
+                            
+                            </a>
+                        </li>
+                        
+                        
+                    
+                
+                    
+                
+            
+                
+                    
+                
+                    
+                
+                    
+                
+            
+        
+            
+            
+                
+                    
+                
+                    
+                        
+                        <li class="relatedPost">
+                            <a href="http://localhost:4000/2017/05/27/spark-architecture-part1/">Spark Architecture : Part 1 - Making sure that the basement is right!
+                            
+                            </a>
+                        </li>
+                        
+                        
+                    
+                
+                    
+                
+            
+                
+                    
+                
+                    
+                
+                    
+                
+            
+        
+            
+            
+                
+                    
+                
+                    
+                
+                    
+                
+            
+        
+            
+            
+                
+                    
+                
+                    
+                
+                    
+                
+            
+        
+        
+            </ul>
+        
+
+        <div class="post-recent">
+    <div class="pre">
+        
+        <p><strong>上一篇</strong> <a href="/2017/06/10/Implicits-And-Typeclasses-in-scala/">Implicits and Type Classes</a></p>
+        
+    </div>
+    <div class="nex">
+
+        
+    </div>
+</div>
+
+
+        <h2 id="comments">Comments</h2>
+        
+<!-- 多说评论框 start -->
+<div class="ds-thread" data-thread-key="http://localhost:4000/2017/06/16/A-Humble-attempt-to-Understand-Streaming-Part1/" data-title="A Humble attempt to Understand Streaming Data and the way we process it!" data-url="http://localhost:4000/2017/06/16/A-Humble-attempt-to-Understand-Streaming-Part1/"></div>
+<!-- 多说评论框 end -->
+<!-- 多说公共JS代码 start (一个网页只需插入一次) -->
+<script type="text/javascript">
+    var duoshuoQuery = {
+        short_name: "dreamlabs4u"
+    };
+    (function() {
+        var ds = document.createElement('script');
+        ds.type = 'text/javascript';
+        ds.async = true;
+        ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+        ds.charset = 'UTF-8';
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+</script>
+<!-- 多说公共JS代码 end -->
+
+
+
+<div id="disqus_thread"></div>
+<script>
+    /**
+     * RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
+     * LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables
+     */
+
+    var disqus_config = function() {
+        this.page.url = 'http://localhost:4000/2017/06/16/A-Humble-attempt-to-Understand-Streaming-Part1/'; // Replace PAGE_URL with your page's canonical URL variable
+        this.page.identifier = 'http://localhost:4000/2017/06/16/A-Humble-attempt-to-Understand-Streaming-Part1/'; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
+    };
+
+    (function() { // DON'T EDIT BELOW THIS LINE
+        var d = document,
+            s = d.createElement('script');
+
+        s.src = '//dreamlabs4u.disqus.com/embed.js';
+
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript>
+
+
+
+
+    </div>
+    <button class="anchor"><i class="fa fa-anchor"></i></button>
+    <div class="right">
+        <div class="wrap">
+
+            <!-- Content -->
+            <div class="side content">
+                <div>
+                    Content
+                </div>
+                <ul id="content-side" class="content-ul">
+                    <li><a href="#similar_posts">Similar Posts</a></li>
+                    <li><a href="#comments">Comments</a></li>
+                </ul>
+            </div>
+            <!-- 其他div框放到这里 -->
+            <!-- <div class="side">bbbb</div> -->
+        </div>
+    </div>
+</div>
+<script>
+/**
+ * target _blank
+ */
+(function() {
+    var aTags = document.querySelectorAll('article a:not([id])')
+    for (var i = 0; i < aTags.length; i++) {
+        aTags[i].setAttribute('target', '_blank')
+    }
+}());
+</script>
+<script src="/js/pageContent.js " charset="utf-8"></script>
+
+
+    <footer class="site-footer">
+
+
+    <div class="wrapper">
+
+        <p class="description">
+            
+        </p>
+        <p class="contact">
+            Contact me at: 
+            <a href="https://github.com/dreamlabs4u" title="GitHub"><i class="fa fa-github" aria-hidden="true"></i></a>  
+            <a href="mailto:dreamlabs4u@gmail.com" title="email"><i class="fa fa-envelope-o" aria-hidden="true"></i></a>    
+            <a href="https://twitter.com/dreamlabs4u" title="Twitter"><i class="fa fa-twitter" aria-hidden="true"></i></a>  
+            <a href="https://www.facebook.com/dreamlabs4u" title="Facebook"><i class="fa fa-facebook-official" aria-hidden="true"></i></a>   
+            <a href="https://www.linkedin.com/in/dreamlabs4u" title="LinkedIn"><i class="fa fa-linkedin" aria-hidden="true"></i></a>  
+        </p>
+        <p class="power">
+            <span>
+                Site powered by <a href="https://jekyllrb.com/">Jekyll</a> & <a href="https://pages.github.com/">Github Pages</a>.
+            </span>
+            <span>
+                Theme designed by <a href="https://github.com/Gaohaoyang">HyG</a>.
+            </span>
+        </p>
+    </div>
+</footer>
+<script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+    <div class="back-to-top">
+    <a href="#top" data-scroll>
+        <i class="fa fa-arrow-up" aria-hidden="true"></i>
+    </a>
+</div>
+
+    <script src=" /js/main.js " charset="utf-8"></script>
+    <script src=" /js/smooth-scroll.min.js " charset="utf-8"></script>
+    <script type="text/javascript">
+      smoothScroll.init({
+        speed: 500, // Integer. How fast to complete the scroll in milliseconds
+        easing: 'easeInOutCubic', // Easing pattern to use
+        offset: 20, // Integer. How far to offset the scrolling anchor location in pixels
+      });
+    </script>
+    <!-- <script src=" /js/scroll.min.js " charset="utf-8"></script> -->
+  </body>
+
+</html>

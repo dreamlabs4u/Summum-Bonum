@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>Spark Architecture : Part 1 - Making sure that the basement is right!</title>
+    <meta name="description" content="  The basics (Quick glance through what we already know)  Connecting the Dots  Connecting the Dots - The Capacity of our Cluster!When I wanted to learn about...">
+
+    <link rel="shortcut icon" href="/favicon.ico?" type="image/x-icon">
+    <link rel="icon" href="/favicon.ico?" type="image/x-icon">
+    <link rel="stylesheet" href="https://cdn.bootcss.com/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="https://at.alicdn.com/t/font_8v3czwksspqlg14i.css">
+    <link rel="stylesheet" href="/css/main.css ">
+    <link rel="canonical" href="http://localhost:4000/2017/05/27/spark-architecture-part1/">
+    <link rel="alternate" type="application/rss+xml" title="Dreamlabs4u" href="http://localhost:4000/feed.xml ">
+
+
+
+
+
+</head>
+
+
+  <body>
+
+    <header id="top">
+    <div class="wrapper">
+        <a href="/" class="brand">Dreamlabs4u</a>
+        <small>A fanboy of Moments, Code and Life!</small>
+        <button id="headerMenu" class="menu"><i class="fa fa-bars"></i></button>
+        <nav id="headerNav">
+            <ul>
+                <li>
+                    
+                    <a href="/">
+                    
+                        <i class="fa fa-home"></i>Home
+                    </a>
+                </li>
+
+                
+                    
+                    <li>
+                        
+                        <a href="/archive/">
+                        
+                            <i class="fa fa-archive"></i>Archives
+                        </a>
+                    </li>
+                    
+                
+                    
+                    <li>
+                        
+                        <a href="/category/">
+                        
+                            <i class="fa fa-th-list"></i>Categories
+                        </a>
+                    </li>
+                    
+                
+                    
+                    <li>
+                        
+                        <a href="/tag/">
+                        
+                            <i class="fa fa-tags"></i>Tags
+                        </a>
+                    </li>
+                    
+                
+                    
+                    <li>
+                        
+                        <a href="/collection/">
+                        
+                            <i class="fa fa-bookmark"></i>Collections
+                        </a>
+                    </li>
+                    
+                
+                    
+                    <li>
+                        
+                        <a href="/demo/">
+                        
+                            <i class="fa fa-play"></i>Demo
+                        </a>
+                    </li>
+                    
+                
+                    
+                    <li>
+                        
+                        <a href="/about/">
+                        
+                            <i class="fa fa-heart"></i>About
+                        </a>
+                    </li>
+                    
+                
+                    
+                
+                    
+                
+                    
+                
+                    
+                
+            </ul>
+        </nav>
+    </div>
+</header>
+
+
+        <div class="page clearfix" post>
+    <div class="left">
+        <h1>Spark Architecture : Part 1 - Making sure that the basement is right!</h1>
+        <div class="label">
+
+            <div class="label-card">
+                <i class="fa fa-calendar"></i>2017-05-27
+            </div>
+
+            <div class="label-card">
+                <i class="fa fa-user"></i>Toney Thomas
+                
+            </div>
+
+            <div class="label-card">
+                
+            </div>
+
+            <div class="label-card">
+            
+
+
+<!-- <span class="point">•</span> -->
+<span class="categories">
+  <i class="fa fa-th-list"></i>
+  
+    
+        <a href="/category/#Spark" title="Category: Spark" rel="category">Spark</a>
+    
+  
+
+  <!-- <span class="point">•</span> -->
+</span>
+
+
+            </div>
+
+            <div class="label-card">
+            
+<!-- <span class="point">•</span> -->
+<span class="pageTag">
+  <i class="fa fa-tags"></i>
+  
+    
+        <!--a href="/tag/#Spark%2C" title="Tag: Spark," rel="tag">Spark,</a-->
+        <a href="/tag/#Spark," title="Tag: Spark," rel="tag">Spark,</a>&nbsp;
+    
+        <!--a href="/tag/#Scala" title="Tag: Scala" rel="tag">Scala</a-->
+        <a href="/tag/#Scala" title="Tag: Scala" rel="tag">Scala</a>
+    
+  
+
+</span>
+
+            </div>
+
+        </div>
+        <hr>
+        <article itemscope itemtype="http://schema.org/BlogPosting">
+        <ul id="markdown-toc">
+  <li><a href="#the-basics-quick-glance-through-what-we-already-know" id="markdown-toc-the-basics-quick-glance-through-what-we-already-know"><em>The basics (Quick glance through what we already know)</em></a></li>
+  <li><a href="#connecting-the-dots" id="markdown-toc-connecting-the-dots">Connecting the Dots</a></li>
+  <li><a href="#connecting-the-dots---the-capacity-of-our-cluster" id="markdown-toc-connecting-the-dots---the-capacity-of-our-cluster">Connecting the Dots - The Capacity of our Cluster!</a></li>
+</ul>
+
+<p>When I wanted to learn about Spark and its Architecture, to get it from horses mouth, I went directly to the Apache Spark homepage
+<a href="http://spark.apache.org/docs/latest/cluster-overview.html">Spark Architecture</a>. Not surprisingly, I was presented with a neat Architecture diagram and a collection of 
+jargons to start with - Cluster manager, Driver Program, Spark Context, Worker node, Executor, Task, Job, Stage.</p>
+
+<p><img src="/images/clusteroverview.png" alt="Architecture" /></p>
+
+<p>Since I have been working with Big Data Technologies for quite some time, I was able to map the things on a high level. Not recently, I 
+started imbibing a pattern of learning in which I mark something as learned if and only if I am successful in making another person understand 
+that concept in the most simple terms. So sticking on to that thumb rule and to force the zen pattern, I am trying to to explain the Architecture
+from a different(more practical) point of view(I presume you have basic understanding of Hadoop and MapReduce).</p>
+
+<h2 id="the-basics-quick-glance-through-what-we-already-know"><em>The basics (Quick glance through what we already know)</em></h2>
+
+<p>We all know that the Spark Architecture sits on top of the Hadoop Platform. So, the simple layman question - What is a Hadoop cluster and why do we need it ?</p>
+<div class="highlighter-rouge"><pre class="highlight"><code>As per Wiki - Apache Hadoop is an open-source software framework used for distributed storage and processing of dataset of big data using the MapReduce programming model.
+</code></pre>
+</div>
+
+<p>To understand the need and evolution of Hadoop-MapReduce, I suggest you to go through the below write up :-</p>
+
+<p><a href="https://github.com/vineethMM/spark-examples/blob/master/README.md">Evolution of Hadoop and MapReduce</a></p>
+
+<p><em>P.S : - More to Come on this introduction part.</em></p>
+
+<h2 id="connecting-the-dots">Connecting the Dots</h2>
+
+<p>Ok, Let’s try to see the whole architecture from a different perspective. We all know that the Hadoop cluster is “made” using the commodity Hardwares 
+and let’s assume that we have 5 Physical machines each of them is having a basic configuration (16GB RAM, 1 TB HDD, and 8 Core Processors).</p>
+
+<p><img src="/images/Machines.png" alt="Hypothesis" /></p>
+
+<p>Ta-da, we have got the physical machines in place and we now need to do is to setup a Spark Cluster using these machines. To separate the concerns, we 
+will be sticking on to the official Spark Architecture (Documentation) and try to illustrate how the following components are form part of the Architecture.</p>
+
+<ul>
+  <li><em>Main Components - Hypothesis</em>
+    <ul>
+      <li>Driver Program :- This should be the user logic and configuration, eh?</li>
+      <li>Cluster Manager :- This should be something which manages the Cluster (Hmm, resources and flow ? )</li>
+      <li>Worker Node :- This should be something which does the actual work ?</li>
+    </ul>
+  </li>
+</ul>
+
+<p>We will try to give a formal definition and the responsibilities of each of these components in a while. Since we are building a Hadoop Spark Cluster, we should 
+have a Distributed Storage layer built first by connecting all these machines to store the large volumes of data. So in the cluster we are going to build, 
+we will make the Machine 1 as the Edge Node (A single point of access from where an end-user can perform anything on the cluster) and only 3 out of the 4 remaining
+machines(Machine 2, 3 &amp; 4) will only be used to store the data in the cluster and thus form the storage layer (3 * 1 TB = ~3 TB). If you closely observe the different  <br />
+components in Hadoop Eco-system, almost everything work in a Master-Slave architecture. A master who controls and co-ordinates the actions and the slaves who perform 
+those actions. In the case of Distributed Storage, the master is called NameNode and the slaves are called DataNodes. So if you try to point them back to our simple 
+cluster NameNode is a process running on the Machine 5 and DataNodes are individual processes running on Machine 2,3 &amp; 4. Similarly, for managing the task allocation
+and resources, the Resource Manager(Master) will be running on Machine 5 and individual Node Managers(slaves) will be running on each of the Machines 2, 3 &amp; 4.</p>
+
+<p><img src="/images/ClusterInitial.png" alt="Cluster Initial Build" /></p>
+
+<h2 id="connecting-the-dots---the-capacity-of-our-cluster">Connecting the Dots - The Capacity of our Cluster!</h2>
+
+<p>Now that we have a storage layer to layer to store our ‘Big Data’, there should be some mechanism to do the computation/processing. If we do a quick peek into the Spark Architecture(Yes, I am 
+still following the bottom up method to explain things :D ), we can see Components named <em>Executor</em> with individual Task and Cache. Yes, these are the Heros which gets the work done. We 
+can treat each Executor as individual container with its own Processor and Memory(Virtual Cores - Will be explained in a separate thread - <a href="">Spark Memory Management</a> - Ideally the V-Cores are equal to the number of physical
+cores available in each Node). So if we do the math, Each of our Worker Node makes the following contributions to the total capacity of the Cluster.</p>
+
+<table>
+  <tbody>
+    <tr>
+      <td>*</td>
+      <td>Attribute</td>
+      <td>Value</td>
+      <td>How</td>
+    </tr>
+    <tr>
+      <td>1</td>
+      <td>Storage</td>
+      <td>1 GB</td>
+      <td>It is the HDD available to Store Data</td>
+    </tr>
+    <tr>
+      <td>2</td>
+      <td>V - Cores</td>
+      <td>5 Cores</td>
+      <td>Leaving 1 Core for NM, 1 Core for DN and 1 Core for OS</td>
+    </tr>
+    <tr>
+      <td>3</td>
+      <td>Memory</td>
+      <td>10 GB</td>
+      <td>Leaving 4 GB for OS, NM and DN</td>
+    </tr>
+    <tr>
+      <td>*</td>
+      <td>Total</td>
+      <td>3 TB HDD + 15 V-Cores + 30 GB</td>
+      <td>Adding the resources from each of the nodes</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>To summarize, the Node Managers will share the Memory and V-Core information to the Resource Managers and the DataNodes will share the Disk space 
+statistics with the NameNodes during their startup. The cumulative information will actually provide the overall capacity of the cluster.</p>
+
+<p>P.S: There are more to this like pluggable Capacity Scheduler and the Algorithm for Calculating the resource availability (Default Resource Calculator and 
+DominantResource Calculator using Dominant Resource Fairness ) - We will talk about this in a separate thread <a href="">Resource Scheduling</a></p>
+
+<p>The continuation of this discussion will happen in the next Post <a href="https://dreamlabs4u.github.io/2017/05/27/spark-architecture-part2/">Spark Architecture : Part 2 - Let’s set the ball rolling</a></p>
+
+
+        </article>
+        <hr>
+
+        
+        
+            
+            
+                
+                    
+                
+                    
+                
+            
+                
+                    
+                        
+                        <h2 id="similar_posts">Similar Posts</h2>
+                        <ul>
+                        
+                        <li class="relatedPost">
+                            <a href="http://localhost:4000/2017/06/16/A-Humble-attempt-to-Understand-Streaming-Part1/">A Humble attempt to Understand Streaming Data and the way we process it!
+                            
+                            </a>
+                        </li>
+                        
+                        
+                    
+                
+                    
+                
+            
+                
+                    
+                
+                    
+                
+            
+        
+            
+            
+                
+                    
+                
+                    
+                        
+                        <li class="relatedPost">
+                            <a href="http://localhost:4000/2017/06/10/Implicits-And-Typeclasses-in-scala/">Implicits and Type Classes
+                            
+                            </a>
+                        </li>
+                        
+                        
+                    
+                
+            
+        
+            
+            
+                
+                    
+                        
+                        <li class="relatedPost">
+                            <a href="http://localhost:4000/2017/05/28/CCA175-Cloudera-Spark-Hadoop-part1/">CCA 175 - Cloudera Spark & Hadoop Certification - Part 1
+                            
+                            </a>
+                        </li>
+                        
+                        
+                    
+                
+                    
+                
+            
+                
+                    
+                
+                    
+                
+            
+                
+                    
+                
+                    
+                
+            
+                
+                    
+                
+                    
+                
+            
+        
+            
+            
+                
+                    
+                        
+                        <li class="relatedPost">
+                            <a href="http://localhost:4000/2017/05/27/spark-architecture-part2/">Spark Architecture : Part 2 - Let's set the ball rolling
+                            
+                            </a>
+                        </li>
+                        
+                        
+                    
+                
+                    
+                
+            
+                
+                    
+                
+                    
+                
+            
+        
+            
+            
+                
+                    
+                
+                    
+                        
+                        <li class="relatedPost">
+                            <a href="http://localhost:4000/2017/05/19/monad-explained/">Monad Explained! - The Scala way
+                            
+                            </a>
+                        </li>
+                        
+                        
+                    
+                
+            
+        
+            
+            
+                
+                    
+                
+                    
+                
+            
+        
+        
+            </ul>
+        
+
+        <div class="post-recent">
+    <div class="pre">
+        
+        <p><strong>上一篇</strong> <a href="/2017/05/19/monad-explained/">Monad Explained! - The Scala way</a></p>
+        
+    </div>
+    <div class="nex">
+
+        
+        <p><strong>下一篇</strong> <a href="/2017/05/27/spark-architecture-part2/">Spark Architecture : Part 2 - Let's set the ball rolling</a></p>
+        
+    </div>
+</div>
+
+
+        <h2 id="comments">Comments</h2>
+        
+<!-- 多说评论框 start -->
+<div class="ds-thread" data-thread-key="http://localhost:4000/2017/05/27/spark-architecture-part1/" data-title="Spark Architecture : Part 1 - Making sure that the basement is right!" data-url="http://localhost:4000/2017/05/27/spark-architecture-part1/"></div>
+<!-- 多说评论框 end -->
+<!-- 多说公共JS代码 start (一个网页只需插入一次) -->
+<script type="text/javascript">
+    var duoshuoQuery = {
+        short_name: "dreamlabs4u"
+    };
+    (function() {
+        var ds = document.createElement('script');
+        ds.type = 'text/javascript';
+        ds.async = true;
+        ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+        ds.charset = 'UTF-8';
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+</script>
+<!-- 多说公共JS代码 end -->
+
+
+
+<div id="disqus_thread"></div>
+<script>
+    /**
+     * RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
+     * LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables
+     */
+
+    var disqus_config = function() {
+        this.page.url = 'http://localhost:4000/2017/05/27/spark-architecture-part1/'; // Replace PAGE_URL with your page's canonical URL variable
+        this.page.identifier = 'http://localhost:4000/2017/05/27/spark-architecture-part1/'; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
+    };
+
+    (function() { // DON'T EDIT BELOW THIS LINE
+        var d = document,
+            s = d.createElement('script');
+
+        s.src = '//dreamlabs4u.disqus.com/embed.js';
+
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript>
+
+
+
+
+    </div>
+    <button class="anchor"><i class="fa fa-anchor"></i></button>
+    <div class="right">
+        <div class="wrap">
+
+            <!-- Content -->
+            <div class="side content">
+                <div>
+                    Content
+                </div>
+                <ul id="content-side" class="content-ul">
+                    <li><a href="#similar_posts">Similar Posts</a></li>
+                    <li><a href="#comments">Comments</a></li>
+                </ul>
+            </div>
+            <!-- 其他div框放到这里 -->
+            <!-- <div class="side">bbbb</div> -->
+        </div>
+    </div>
+</div>
+<script>
+/**
+ * target _blank
+ */
+(function() {
+    var aTags = document.querySelectorAll('article a:not([id])')
+    for (var i = 0; i < aTags.length; i++) {
+        aTags[i].setAttribute('target', '_blank')
+    }
+}());
+</script>
+<script src="/js/pageContent.js " charset="utf-8"></script>
+
+
+    <footer class="site-footer">
+
+
+    <div class="wrapper">
+
+        <p class="description">
+            
+        </p>
+        <p class="contact">
+            Contact me at: 
+            <a href="https://github.com/dreamlabs4u" title="GitHub"><i class="fa fa-github" aria-hidden="true"></i></a>  
+            <a href="mailto:dreamlabs4u@gmail.com" title="email"><i class="fa fa-envelope-o" aria-hidden="true"></i></a>    
+            <a href="https://twitter.com/dreamlabs4u" title="Twitter"><i class="fa fa-twitter" aria-hidden="true"></i></a>  
+            <a href="https://www.facebook.com/dreamlabs4u" title="Facebook"><i class="fa fa-facebook-official" aria-hidden="true"></i></a>   
+            <a href="https://www.linkedin.com/in/dreamlabs4u" title="LinkedIn"><i class="fa fa-linkedin" aria-hidden="true"></i></a>  
+        </p>
+        <p class="power">
+            <span>
+                Site powered by <a href="https://jekyllrb.com/">Jekyll</a> & <a href="https://pages.github.com/">Github Pages</a>.
+            </span>
+            <span>
+                Theme designed by <a href="https://github.com/Gaohaoyang">HyG</a>.
+            </span>
+        </p>
+    </div>
+</footer>
+<script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+    <div class="back-to-top">
+    <a href="#top" data-scroll>
+        <i class="fa fa-arrow-up" aria-hidden="true"></i>
+    </a>
+</div>
+
+    <script src=" /js/main.js " charset="utf-8"></script>
+    <script src=" /js/smooth-scroll.min.js " charset="utf-8"></script>
+    <script type="text/javascript">
+      smoothScroll.init({
+        speed: 500, // Integer. How fast to complete the scroll in milliseconds
+        easing: 'easeInOutCubic', // Easing pattern to use
+        offset: 20, // Integer. How far to offset the scrolling anchor location in pixels
+      });
+    </script>
+    <!-- <script src=" /js/scroll.min.js " charset="utf-8"></script> -->
+  </body>
+
+</html>
