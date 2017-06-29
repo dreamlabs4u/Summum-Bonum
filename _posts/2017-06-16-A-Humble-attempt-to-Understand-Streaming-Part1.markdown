@@ -100,7 +100,7 @@ is given below for reference.
     val ssc = new StreamingContext(sparkConf, Seconds(1))
     
     // Create a socket stream(ReceiverInputDStream) on target ip:port
-    val lines = ssc.socketTextStream(args(1), args(2).toInt, StorageLevel.MEMORY_AND_DISK_SER)
+    val lines = ssc.socketTextStream(args(1), args(2).toInt, StorageLevel.MEMORY_ONLY)
     
     // Split words by space to form DStream[String]
     val words = lines.flatMap(_.split(" "))
