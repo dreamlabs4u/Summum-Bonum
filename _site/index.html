@@ -180,7 +180,10 @@
                     <ul id="markdown-toc">
   <li><a href="#batch-data-vs-streaming-data-" id="markdown-toc-batch-data-vs-streaming-data-">Batch Data Vs Streaming Data …</a></li>
   <li><a href="#indefinite-flow-of-data-" id="markdown-toc-indefinite-flow-of-data-">Indefinite flow of data …</a></li>
-  <li><a href="#process_pattern_1--process-data-as-and-when-it-is-available" id="markdown-toc-process_pattern_1--process-data-as-and-when-it-is-available"><em>#Process_Pattern_1</em> : Process data as and when it is available.</a></li>
+  <li><a href="#process_pattern_1--process-data-as-and-when-it-is-available" id="markdown-toc-process_pattern_1--process-data-as-and-when-it-is-available"><em>#Process_Pattern_1</em> : Process data as and when it is available.</a>    <ul>
+      <li><a href="#something-is-worrying-you" id="markdown-toc-something-is-worrying-you">Something is worrying You!</a></li>
+    </ul>
+  </li>
 </ul>
 
 <p>Recently my friend has asked me, “Dude, it’s been quite some time that you have been working on Big Data and related software 
@@ -295,11 +298,142 @@ is given below for reference.</p>
 </div>
 
 <p>Internally, it works as follows. Spark Streaming receives live input data streams and divides the data into batches, then the 
-sequence of RDDS(DStreams) will then be processed by the Spark engine to generate the final stream of results. Yes, the opportunist
-in you have guessed it right, once we have a sequence of RDDS - you are empowered and transcended to a a world where you are free to do 
-anything which you can perform on an RDD - be it MLlib, Graph and you name it - Awesomeness!.</p>
+sequence of RDDS(DStreams) will then be processed by the Spark engine to generate the final stream of results. There are two types of 
+operations on DStreams i.e transformations and output operations. Every Spark Streaming application processes the DStream RDDs using 
+Spark transformations which create new RDDs. Any operation applied on a DStream translates to operations on the underlying RDDs, which 
+in turn, applies the transformation to the elements of the RDD. Output operations, like saving the HDFS or calling an external API will 
+produce output in batches.</p>
 
-<p>The typical “word count” comes to the rescue. I will try to explain the</p>
+<p><img src="/images/DStreamTransformations.png" alt="DStream Transformations" /></p>
+
+<p>Yes, the opportunist in you have guessed it right, once we have a sequence of RDDS - you are empowered and transcended to a a world where you are free to do 
+anything which you can perform on an RDD - be it MLlib, Graph and you name it - Awesomeness!</p>
+
+<h3 id="something-is-worrying-you">Something is worrying You!</h3>
+
+<p>Yes, from the top of my head, I could sense a lot of questions cooking up.</p>
+
+<ul>
+  <li>Will I be able to process all the data which streams in ?</li>
+  <li>what all things have been considered for the fault-tolerance while processing this fast paced data ingest</li>
+  <li>Who will be responsible for receiving the data etc.</li>
+</ul>
+
+<p>Ok, since everything ultimately boiling down to RDD processing, we very well know that the processing will ultimately happen in Spark 
+Driver Program and Executors.</p>
+
+<p><img src="/images/sparkHighLevel.png" alt="Spark Streaming Micro Batch" /></p>
+
+<p>Let’s try to solve the questions in the chronological order of relevance and see whether we can come up with some answers. In that 
+case the very first question would be how will be responsible for receiving the data.</p>
+
+<p><img src="/images/SparkReceiver1.png" alt="Spark Streaming Micro Batch" /></p>
+
+<p>Depending upon the type of input streaming data source, the corresponding DStream is associated with a Receiver object 
+which receives the data from a source and stores it in Spark’s memory for processing. Spark Streaming provides two categories 
+of built-in streaming sources.</p>
+
+<ul>
+  <li>Basic sources: Sources directly available in the StreamingContext API. Examples: file systems, and socket connections.</li>
+  <li>Advanced sources: Sources like Kafka, Flume, Kinesis, etc. are available through extra utility classes.</li>
+</ul>
+
+<p>In the current Context(Network Word Count), we are using the ReceiverInputDStream for the Socket Stream Source. The Receivers are long
+running process in one of the Executors and its life span will be as long as the driver program is alive. The Receiver receives data from
+socket connection and separates them into blocks. This generated block of data will be replicated among different executor memory. On
+every batch interval the Driver will launch tasks to process the blocks of data and the subsequent results will be sinked to the destination
+location.</p>
+
+<p><img src="/images/DStreamProcessing.png" alt="Spark Streaming DStream Processing" /></p>
+
+<p>Okay, now that we have the answer for the question on who will be responsible from receiving the streaming data, the next intriguing
+question would be on the fault-tolerance. We know that everything is now boiled down to Spark native habitat the possible faulty prone
+scenarios that can occur would be : -</p>
+
+<ol>
+  <li>
+    <p><em>What if the Executor Fails : -</em></p>
+
+    <p>If the Executor is failed then the Receiver and the stored memory blocks will be lost and then the Driver will trigger a new receiver 
+and the tasks will be resumed using the replicated memory blocks.</p>
+
+    <p><img src="/images/ExecutorFails.png" alt="Executor Fails" /></p>
+  </li>
+  <li>
+    <p><em>What if the Driver Program Fails : -</em></p>
+
+    <p>When the Driver Program is failed, then the corresponding Executors as well as the computations, and all the stored memory blocks will be
+lost. In order to recover from that, Spark provides a feature called DStream Checkpointing. This will enable a periodic storage of DAG of 
+DStreams to fault tolerant storage(HDFS). So when the Driver, Receiver and Executors are restarted, the Active Driver program can make
+use of this persisted Checkpoint state to resume the processing.</p>
+
+    <p><img src="/images/DStreamCheckpoint.png" alt="Executor Fails" /></p>
+
+    <p>Even if we are able to restart the Checkpoint state and start processing from the previous state with the new Active Executor, Driver program,
+and Receiver - we need to have a mechanism to recover the memory blocks at that state. In order to achieve this, Spark comes with a feature called
+Write Ahead Log (WAL) - This will synchronously saves memory blocks into fault-tolerant storage.</p>
+
+    <p><img src="/images/WALDStream.png" alt="Executor Fails" /></p>
+
+    <p>To enable the whole fault-tolerance, we should perform the following changes to our Network WordCount Program : -</p>
+
+    <ul>
+      <li>Enable Checkpointing</li>
+      <li>Enable WAL in SparkConf</li>
+      <li>Disable in-memory Replication</li>
+      <li>Receiver should be reliable : Acknowledge Source only after data is saved to WAL. Untracked data will be replayed from source.</li>
+    </ul>
+  </li>
+</ol>
+
+<p>If you apply the above fault-tolerance changes then the whole NetworkWordCount program will look something like this : -</p>
+
+<div class="language-scala highlighter-rouge"><pre class="highlight"><code>      <span class="k">def</span> <span class="n">main</span><span class="o">(</span><span class="n">args</span><span class="k">:</span> <span class="kt">Array</span><span class="o">[</span><span class="kt">String</span><span class="o">])</span> <span class="o">{</span>
+        <span class="k">if</span> <span class="o">(</span><span class="n">args</span><span class="o">.</span><span class="n">length</span> <span class="o">&lt;</span> <span class="mi">3</span><span class="o">)</span> <span class="o">{</span>
+          <span class="nc">System</span><span class="o">.</span><span class="n">err</span><span class="o">.</span><span class="n">println</span><span class="o">(</span><span class="s">"Usage: NetworkWordCount &lt;master&gt; &lt;hostname&gt; &lt;port&gt; &lt;duration&gt; &lt;checkpoint directory&gt;"</span><span class="o">)</span>
+          <span class="nc">System</span><span class="o">.</span><span class="n">exit</span><span class="o">(</span><span class="mi">1</span><span class="o">)</span>
+        <span class="o">}</span>
+    
+        <span class="nc">StreamingExamples</span><span class="o">.</span><span class="n">setStreamingLogLevels</span><span class="o">()</span>
+    
+        <span class="k">val</span> <span class="n">ssc</span> <span class="k">=</span> <span class="nc">StreamingContext</span><span class="o">.</span><span class="n">getOrCreate</span><span class="o">(</span><span class="n">args</span><span class="o">(</span><span class="mi">4</span><span class="o">),</span> <span class="o">()</span> <span class="k">=&gt;</span> <span class="n">createContext</span><span class="o">(</span><span class="n">args</span><span class="o">))</span>
+    
+    
+        <span class="n">ssc</span><span class="o">.</span><span class="n">start</span><span class="o">()</span>
+    
+        <span class="n">ssc</span><span class="o">.</span><span class="n">awaitTermination</span><span class="o">()</span>
+      <span class="o">}</span>
+    
+      <span class="k">def</span> <span class="n">createContext</span><span class="o">(</span><span class="n">args</span><span class="k">:</span> <span class="kt">Array</span><span class="o">[</span><span class="kt">String</span><span class="o">])</span> <span class="k">=</span> <span class="o">{</span>
+    
+        <span class="c1">// Create the context with a 1 second batch size
+</span>        <span class="k">val</span> <span class="n">sparkConf</span> <span class="k">=</span> <span class="k">new</span> <span class="nc">SparkConf</span><span class="o">().</span><span class="n">setMaster</span><span class="o">(</span><span class="n">args</span><span class="o">(</span><span class="mi">0</span><span class="o">)).</span><span class="n">setAppName</span><span class="o">(</span><span class="s">"NetworkWordCount"</span><span class="o">)</span>
+        <span class="n">sparkConf</span><span class="o">.</span><span class="n">set</span><span class="o">(</span><span class="s">"spark.streaming.receiver.writeAheadLog.enable"</span><span class="o">,</span> <span class="s">"true"</span><span class="o">)</span>
+    
+        <span class="k">val</span> <span class="n">ssc</span> <span class="k">=</span> <span class="k">new</span> <span class="nc">StreamingContext</span><span class="o">(</span><span class="n">sparkConf</span><span class="o">,</span> <span class="nc">Seconds</span><span class="o">(</span><span class="n">args</span><span class="o">(</span><span class="mi">3</span><span class="o">).</span><span class="n">toInt</span><span class="o">))</span>
+    
+        <span class="c1">// Create a socket stream(ReceiverInputDStream) on target ip:port
+</span>        <span class="k">val</span> <span class="n">lines</span> <span class="k">=</span> <span class="n">ssc</span><span class="o">.</span><span class="n">socketTextStream</span><span class="o">(</span><span class="n">args</span><span class="o">(</span><span class="mi">1</span><span class="o">),</span> <span class="n">args</span><span class="o">(</span><span class="mi">2</span><span class="o">).</span><span class="n">toInt</span><span class="o">,</span> <span class="nc">StorageLevel</span><span class="o">.</span><span class="nc">MEMORY_AND_DISK_SER</span><span class="o">)</span>
+    
+        <span class="c1">// Split words by space to form DStream[String]
+</span>        <span class="k">val</span> <span class="n">words</span> <span class="k">=</span> <span class="n">lines</span><span class="o">.</span><span class="n">flatMap</span><span class="o">(</span><span class="k">_</span><span class="o">.</span><span class="n">split</span><span class="o">(</span><span class="s">" "</span><span class="o">))</span>
+    
+        <span class="c1">// count the words to form DStream[(String, Int)]
+</span>        <span class="k">val</span> <span class="n">wordCounts</span> <span class="k">=</span> <span class="n">words</span><span class="o">.</span><span class="n">map</span><span class="o">(</span><span class="n">x</span> <span class="k">=&gt;</span> <span class="o">(</span><span class="n">x</span><span class="o">,</span> <span class="mi">1</span><span class="o">)).</span><span class="n">reduceByKey</span><span class="o">(</span><span class="k">_</span> <span class="o">+</span> <span class="k">_</span><span class="o">)</span>
+    
+        <span class="n">wordCounts</span><span class="o">.</span><span class="n">print</span><span class="o">()</span>
+    
+        <span class="n">ssc</span><span class="o">.</span><span class="n">checkpoint</span><span class="o">(</span><span class="n">args</span><span class="o">(</span><span class="mi">4</span><span class="o">))</span>
+    
+        <span class="n">ssc</span>
+      <span class="o">}</span>
+</code></pre>
+</div>
+
+<p>Have you noticed something fishy in the existing implementation - Hmm, A reliable friend - Yes, a reliable source who can acknowledge 
+our hope, well-being and happiness :).</p>
+
+<p>We will talk about that in the sequel… To Be Continued! :)</p>
 
                 </div>
                 <div class="read-all">

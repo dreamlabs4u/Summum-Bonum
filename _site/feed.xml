@@ -5,8 +5,8 @@
     <description></description>
     <link>http://localhost:4000/</link>
     <atom:link href="http://localhost:4000/feed.xml" rel="self" type="application/rss+xml"/>
-    <pubDate>Thu, 29 Jun 2017 12:15:04 +1000</pubDate>
-    <lastBuildDate>Thu, 29 Jun 2017 12:15:04 +1000</lastBuildDate>
+    <pubDate>Thu, 29 Jun 2017 16:46:45 +1000</pubDate>
+    <lastBuildDate>Thu, 29 Jun 2017 16:46:45 +1000</lastBuildDate>
     <generator>Jekyll v3.4.3</generator>
     
       <item>
@@ -14,7 +14,10 @@
         <description>&lt;ul id=&quot;markdown-toc&quot;&gt;
   &lt;li&gt;&lt;a href=&quot;#batch-data-vs-streaming-data-&quot; id=&quot;markdown-toc-batch-data-vs-streaming-data-&quot;&gt;Batch Data Vs Streaming Data …&lt;/a&gt;&lt;/li&gt;
   &lt;li&gt;&lt;a href=&quot;#indefinite-flow-of-data-&quot; id=&quot;markdown-toc-indefinite-flow-of-data-&quot;&gt;Indefinite flow of data …&lt;/a&gt;&lt;/li&gt;
-  &lt;li&gt;&lt;a href=&quot;#process_pattern_1--process-data-as-and-when-it-is-available&quot; id=&quot;markdown-toc-process_pattern_1--process-data-as-and-when-it-is-available&quot;&gt;&lt;em&gt;#Process_Pattern_1&lt;/em&gt; : Process data as and when it is available.&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;#process_pattern_1--process-data-as-and-when-it-is-available&quot; id=&quot;markdown-toc-process_pattern_1--process-data-as-and-when-it-is-available&quot;&gt;&lt;em&gt;#Process_Pattern_1&lt;/em&gt; : Process data as and when it is available.&lt;/a&gt;    &lt;ul&gt;
+      &lt;li&gt;&lt;a href=&quot;#something-is-worrying-you&quot; id=&quot;markdown-toc-something-is-worrying-you&quot;&gt;Something is worrying You!&lt;/a&gt;&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
 &lt;/ul&gt;
 
 Recently my friend has asked me, “Dude, it’s been quite some time that you have been working on Big Data and related software 
@@ -129,11 +132,142 @@ is given below for reference.
 &lt;/div&gt;
 
 Internally, it works as follows. Spark Streaming receives live input data streams and divides the data into batches, then the 
-sequence of RDDS(DStreams) will then be processed by the Spark engine to generate the final stream of results. Yes, the opportunist
-in you have guessed it right, once we have a sequence of RDDS - you are empowered and transcended to a a world where you are free to do 
-anything which you can perform on an RDD - be it MLlib, Graph and you name it - Awesomeness!.
+sequence of RDDS(DStreams) will then be processed by the Spark engine to generate the final stream of results. There are two types of 
+operations on DStreams i.e transformations and output operations. Every Spark Streaming application processes the DStream RDDs using 
+Spark transformations which create new RDDs. Any operation applied on a DStream translates to operations on the underlying RDDs, which 
+in turn, applies the transformation to the elements of the RDD. Output operations, like saving the HDFS or calling an external API will 
+produce output in batches.
 
-The typical “word count” comes to the rescue. I will try to explain the
+&lt;img src=&quot;/images/DStreamTransformations.png&quot; alt=&quot;DStream Transformations&quot; /&gt;
+
+Yes, the opportunist in you have guessed it right, once we have a sequence of RDDS - you are empowered and transcended to a a world where you are free to do 
+anything which you can perform on an RDD - be it MLlib, Graph and you name it - Awesomeness!
+
+&lt;h3 id=&quot;something-is-worrying-you&quot;&gt;Something is worrying You!&lt;/h3&gt;
+
+Yes, from the top of my head, I could sense a lot of questions cooking up.
+
+&lt;ul&gt;
+  &lt;li&gt;Will I be able to process all the data which streams in ?&lt;/li&gt;
+  &lt;li&gt;what all things have been considered for the fault-tolerance while processing this fast paced data ingest&lt;/li&gt;
+  &lt;li&gt;Who will be responsible for receiving the data etc.&lt;/li&gt;
+&lt;/ul&gt;
+
+Ok, since everything ultimately boiling down to RDD processing, we very well know that the processing will ultimately happen in Spark 
+Driver Program and Executors.
+
+&lt;img src=&quot;/images/sparkHighLevel.png&quot; alt=&quot;Spark Streaming Micro Batch&quot; /&gt;
+
+Let’s try to solve the questions in the chronological order of relevance and see whether we can come up with some answers. In that 
+case the very first question would be how will be responsible for receiving the data.
+
+&lt;img src=&quot;/images/SparkReceiver1.png&quot; alt=&quot;Spark Streaming Micro Batch&quot; /&gt;
+
+Depending upon the type of input streaming data source, the corresponding DStream is associated with a Receiver object 
+which receives the data from a source and stores it in Spark’s memory for processing. Spark Streaming provides two categories 
+of built-in streaming sources.
+
+&lt;ul&gt;
+  &lt;li&gt;Basic sources: Sources directly available in the StreamingContext API. Examples: file systems, and socket connections.&lt;/li&gt;
+  &lt;li&gt;Advanced sources: Sources like Kafka, Flume, Kinesis, etc. are available through extra utility classes.&lt;/li&gt;
+&lt;/ul&gt;
+
+In the current Context(Network Word Count), we are using the ReceiverInputDStream for the Socket Stream Source. The Receivers are long
+running process in one of the Executors and its life span will be as long as the driver program is alive. The Receiver receives data from
+socket connection and separates them into blocks. This generated block of data will be replicated among different executor memory. On
+every batch interval the Driver will launch tasks to process the blocks of data and the subsequent results will be sinked to the destination
+location.
+
+&lt;img src=&quot;/images/DStreamProcessing.png&quot; alt=&quot;Spark Streaming DStream Processing&quot; /&gt;
+
+Okay, now that we have the answer for the question on who will be responsible from receiving the streaming data, the next intriguing
+question would be on the fault-tolerance. We know that everything is now boiled down to Spark native habitat the possible faulty prone
+scenarios that can occur would be : -
+
+&lt;ol&gt;
+  &lt;li&gt;
+    &lt;em&gt;What if the Executor Fails : -&lt;/em&gt;
+
+    If the Executor is failed then the Receiver and the stored memory blocks will be lost and then the Driver will trigger a new receiver 
+and the tasks will be resumed using the replicated memory blocks.
+
+    &lt;img src=&quot;/images/ExecutorFails.png&quot; alt=&quot;Executor Fails&quot; /&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;em&gt;What if the Driver Program Fails : -&lt;/em&gt;
+
+    When the Driver Program is failed, then the corresponding Executors as well as the computations, and all the stored memory blocks will be
+lost. In order to recover from that, Spark provides a feature called DStream Checkpointing. This will enable a periodic storage of DAG of 
+DStreams to fault tolerant storage(HDFS). So when the Driver, Receiver and Executors are restarted, the Active Driver program can make
+use of this persisted Checkpoint state to resume the processing.
+
+    &lt;img src=&quot;/images/DStreamCheckpoint.png&quot; alt=&quot;Executor Fails&quot; /&gt;
+
+    Even if we are able to restart the Checkpoint state and start processing from the previous state with the new Active Executor, Driver program,
+and Receiver - we need to have a mechanism to recover the memory blocks at that state. In order to achieve this, Spark comes with a feature called
+Write Ahead Log (WAL) - This will synchronously saves memory blocks into fault-tolerant storage.
+
+    &lt;img src=&quot;/images/WALDStream.png&quot; alt=&quot;Executor Fails&quot; /&gt;
+
+    To enable the whole fault-tolerance, we should perform the following changes to our Network WordCount Program : -
+
+    &lt;ul&gt;
+      &lt;li&gt;Enable Checkpointing&lt;/li&gt;
+      &lt;li&gt;Enable WAL in SparkConf&lt;/li&gt;
+      &lt;li&gt;Disable in-memory Replication&lt;/li&gt;
+      &lt;li&gt;Receiver should be reliable : Acknowledge Source only after data is saved to WAL. Untracked data will be replayed from source.&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+&lt;/ol&gt;
+
+If you apply the above fault-tolerance changes then the whole NetworkWordCount program will look something like this : -
+
+&lt;div class=&quot;language-scala highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;      &lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;main&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;args&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;Array&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;kt&quot;&gt;String&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;])&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;args&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;length&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;3&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+          &lt;span class=&quot;nc&quot;&gt;System&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;err&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;println&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;Usage: NetworkWordCount &amp;lt;master&amp;gt; &amp;lt;hostname&amp;gt; &amp;lt;port&amp;gt; &amp;lt;duration&amp;gt; &amp;lt;checkpoint directory&amp;gt;&quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
+          &lt;span class=&quot;nc&quot;&gt;System&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;exit&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
+        &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+    
+        &lt;span class=&quot;nc&quot;&gt;StreamingExamples&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;setStreamingLogLevels&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;()&lt;/span&gt;
+    
+        &lt;span class=&quot;k&quot;&gt;val&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;ssc&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;StreamingContext&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;getOrCreate&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;args&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;4&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;),&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;=&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;createContext&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;args&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;))&lt;/span&gt;
+    
+    
+        &lt;span class=&quot;n&quot;&gt;ssc&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;start&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;()&lt;/span&gt;
+    
+        &lt;span class=&quot;n&quot;&gt;ssc&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;awaitTermination&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;()&lt;/span&gt;
+      &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+    
+      &lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;createContext&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;args&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;Array&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;kt&quot;&gt;String&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;])&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+    
+        &lt;span class=&quot;c1&quot;&gt;// Create the context with a 1 second batch size
+&lt;/span&gt;        &lt;span class=&quot;k&quot;&gt;val&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;sparkConf&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;SparkConf&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;().&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;setMaster&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;args&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)).&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;setAppName&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;NetworkWordCount&quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
+        &lt;span class=&quot;n&quot;&gt;sparkConf&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;set&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;spark.streaming.receiver.writeAheadLog.enable&quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;true&quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
+    
+        &lt;span class=&quot;k&quot;&gt;val&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;ssc&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;StreamingContext&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;sparkConf&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;Seconds&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;args&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;3&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;).&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;toInt&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;))&lt;/span&gt;
+    
+        &lt;span class=&quot;c1&quot;&gt;// Create a socket stream(ReceiverInputDStream) on target ip:port
+&lt;/span&gt;        &lt;span class=&quot;k&quot;&gt;val&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;lines&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;ssc&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;socketTextStream&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;args&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;),&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;args&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;2&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;).&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;toInt&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;StorageLevel&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nc&quot;&gt;MEMORY_AND_DISK_SER&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
+    
+        &lt;span class=&quot;c1&quot;&gt;// Split words by space to form DStream[String]
+&lt;/span&gt;        &lt;span class=&quot;k&quot;&gt;val&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;words&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;lines&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;flatMap&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;_&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;split&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot; &quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;))&lt;/span&gt;
+    
+        &lt;span class=&quot;c1&quot;&gt;// count the words to form DStream[(String, Int)]
+&lt;/span&gt;        &lt;span class=&quot;k&quot;&gt;val&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;wordCounts&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;words&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;map&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;x&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;=&amp;gt;&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;x&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)).&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;reduceByKey&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;_&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;+&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;_&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
+    
+        &lt;span class=&quot;n&quot;&gt;wordCounts&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;print&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;()&lt;/span&gt;
+    
+        &lt;span class=&quot;n&quot;&gt;ssc&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;checkpoint&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;args&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;4&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;))&lt;/span&gt;
+    
+        &lt;span class=&quot;n&quot;&gt;ssc&lt;/span&gt;
+      &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+Have you noticed something fishy in the existing implementation - Hmm, A reliable friend - Yes, a reliable source who can acknowledge 
+our hope, well-being and happiness :).
+
+We will talk about that in the sequel… To Be Continued! :)
 </description>
         <pubDate>Fri, 16 Jun 2017 00:00:00 +1000</pubDate>
         <link>http://localhost:4000/2017/06/16/A-Humble-attempt-to-Understand-Streaming-Part1/</link>

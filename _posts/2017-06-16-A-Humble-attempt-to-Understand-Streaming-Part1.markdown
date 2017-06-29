@@ -117,9 +117,128 @@ is given below for reference.
  ```
  
 Internally, it works as follows. Spark Streaming receives live input data streams and divides the data into batches, then the 
-sequence of RDDS(DStreams) will then be processed by the Spark engine to generate the final stream of results. Yes, the opportunist
-in you have guessed it right, once we have a sequence of RDDS - you are empowered and transcended to a a world where you are free to do 
-anything which you can perform on an RDD - be it MLlib, Graph and you name it - Awesomeness!. 
+sequence of RDDS(DStreams) will then be processed by the Spark engine to generate the final stream of results. There are two types of 
+operations on DStreams i.e transformations and output operations. Every Spark Streaming application processes the DStream RDDs using 
+Spark transformations which create new RDDs. Any operation applied on a DStream translates to operations on the underlying RDDs, which 
+in turn, applies the transformation to the elements of the RDD. Output operations, like saving the HDFS or calling an external API will 
+produce output in batches.
 
+   ![DStream Transformations](/images/DStreamTransformations.png) 
 
-The typical "word count" comes to the rescue. I will try to explain the  
+Yes, the opportunist in you have guessed it right, once we have a sequence of RDDS - you are empowered and transcended to a a world where you are free to do 
+anything which you can perform on an RDD - be it MLlib, Graph and you name it - Awesomeness!
+
+### Something is worrying You! 
+
+Yes, from the top of my head, I could sense a lot of questions cooking up. 
+
+- Will I be able to process all the data which streams in ? 
+- what all things have been considered for the fault-tolerance while processing this fast paced data ingest 
+- Who will be responsible for receiving the data etc. 
+
+Ok, since everything ultimately boiling down to RDD processing, we very well know that the processing will ultimately happen in Spark 
+Driver Program and Executors.     
+   
+   ![Spark Streaming Micro Batch](/images/sparkHighLevel.png)
+
+Let's try to solve the questions in the chronological order of relevance and see whether we can come up with some answers. In that 
+case the very first question would be how will be responsible for receiving the data.
+ 
+   ![Spark Streaming Micro Batch](/images/SparkReceiver1.png)
+
+Depending upon the type of input streaming data source, the corresponding DStream is associated with a Receiver object 
+which receives the data from a source and stores it in Spark’s memory for processing. Spark Streaming provides two categories 
+of built-in streaming sources.    
+ 
+- Basic sources: Sources directly available in the StreamingContext API. Examples: file systems, and socket connections.
+- Advanced sources: Sources like Kafka, Flume, Kinesis, etc. are available through extra utility classes. 
+ 
+In the current Context(Network Word Count), we are using the ReceiverInputDStream for the Socket Stream Source. The Receivers are long
+running process in one of the Executors and its life span will be as long as the driver program is alive. The Receiver receives data from
+socket connection and separates them into blocks. This generated block of data will be replicated among different executor memory. On
+every batch interval the Driver will launch tasks to process the blocks of data and the subsequent results will be sinked to the destination
+location. 
+
+  ![Spark Streaming DStream Processing](/images/DStreamProcessing.png)
+
+Okay, now that we have the answer for the question on who will be responsible from receiving the streaming data, the next intriguing
+question would be on the fault-tolerance. We know that everything is now boiled down to Spark native habitat the possible faulty prone
+scenarios that can occur would be : -
+
+1. *What if the Executor Fails : -* 
+
+   If the Executor is failed then the Receiver and the stored memory blocks will be lost and then the Driver will trigger a new receiver 
+   and the tasks will be resumed using the replicated memory blocks.   
+
+    ![Executor Fails](/images/ExecutorFails.png)
+
+2. *What if the Driver Program Fails : -*
+
+   When the Driver Program is failed, then the corresponding Executors as well as the computations, and all the stored memory blocks will be
+   lost. In order to recover from that, Spark provides a feature called DStream Checkpointing. This will enable a periodic storage of DAG of 
+   DStreams to fault tolerant storage(HDFS). So when the Driver, Receiver and Executors are restarted, the Active Driver program can make
+   use of this persisted Checkpoint state to resume the processing. 
+         
+    ![Executor Fails](/images/DStreamCheckpoint.png) 
+
+   Even if we are able to restart the Checkpoint state and start processing from the previous state with the new Active Executor, Driver program,
+   and Receiver - we need to have a mechanism to recover the memory blocks at that state. In order to achieve this, Spark comes with a feature called
+   Write Ahead Log (WAL) - This will synchronously saves memory blocks into fault-tolerant storage.
+       
+    ![Executor Fails](/images/WALDStream.png) 
+      
+   To enable the whole fault-tolerance, we should perform the following changes to our Network WordCount Program : - 
+      
+   - Enable Checkpointing 
+   - Enable WAL in SparkConf
+   - Disable in-memory Replication
+   - Receiver should be reliable : Acknowledge Source only after data is saved to WAL. Untracked data will be replayed from source. 
+   
+If you apply the above fault-tolerance changes then the whole NetworkWordCount program will look something like this : -
+   
+```scala
+      def main(args: Array[String]) {
+        if (args.length < 3) {
+          System.err.println("Usage: NetworkWordCount <master> <hostname> <port> <duration> <checkpoint directory>")
+          System.exit(1)
+        }
+    
+        StreamingExamples.setStreamingLogLevels()
+    
+        val ssc = StreamingContext.getOrCreate(args(4), () => createContext(args))
+    
+    
+        ssc.start()
+    
+        ssc.awaitTermination()
+      }
+    
+      def createContext(args: Array[String]) = {
+    
+        // Create the context with a 1 second batch size
+        val sparkConf = new SparkConf().setMaster(args(0)).setAppName("NetworkWordCount")
+        sparkConf.set("spark.streaming.receiver.writeAheadLog.enable", "true")
+    
+        val ssc = new StreamingContext(sparkConf, Seconds(args(3).toInt))
+    
+        // Create a socket stream(ReceiverInputDStream) on target ip:port
+        val lines = ssc.socketTextStream(args(1), args(2).toInt, StorageLevel.MEMORY_AND_DISK_SER)
+    
+        // Split words by space to form DStream[String]
+        val words = lines.flatMap(_.split(" "))
+    
+        // count the words to form DStream[(String, Int)]
+        val wordCounts = words.map(x => (x, 1)).reduceByKey(_ + _)
+    
+        wordCounts.print()
+    
+        ssc.checkpoint(args(4))
+    
+        ssc
+      }
+ ```
+ 
+Have you noticed something fishy in the existing implementation - Hmm, A reliable friend - Yes, a reliable source who can acknowledge 
+our hope, well-being and happiness :).
+
+We will talk about that in the sequel... To Be Continued! :)
